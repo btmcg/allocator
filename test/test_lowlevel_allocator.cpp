@@ -1,10 +1,10 @@
 #include "allocator/heap_allocator.hpp"
 #include <catch2/catch.hpp>
 #include <fmt/format.h>
-#include <cstddef>  // std::byte
+#include <cstddef> // std::byte
 #include <cstdint>
-#include <memory>   // std::allocator_traits
-#include <new>      // std::bad_alloc
+#include <memory> // std::allocator_traits
+#include <new> // std::bad_alloc
 
 
 struct dummy_functor
