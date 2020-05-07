@@ -1,4 +1,5 @@
 #include "allocator/heap_allocator.hpp"
+#include "common/compiler.hpp"
 #include <catch2/catch.hpp>
 #include <fmt/format.h>
 #include <cstddef> // std::byte
@@ -59,12 +60,20 @@ TEST_CASE("lowlevel_allocator", "[lowlevel_allocator]")
         lowlevel_allocator<dummy_functor> lla;
         REQUIRE_THROWS_AS(lla.allocate_node(32, 32), std::bad_alloc);
         lla.deallocate_node(nullptr, 32, 32);
-        REQUIRE(lla.max_node_size() == 9223372036854775807);
+#if (defined(COMPILER_GCC))
+        REQUIRE(lla.max_node_size() == 0x7fffffffffffffff);
+#elif (defined(COMPILER_CLANG))
+        REQUIRE(lla.max_node_size() == 0xffffffffffffffff);
+#endif
 
         lowlevel_allocator<dummy_functor> lla2 = std::move(lla);
         REQUIRE_THROWS_AS(lla2.allocate_node(32, 32), std::bad_alloc);
         lla2.deallocate_node(nullptr, 32, 32);
-        REQUIRE(lla2.max_node_size() == 9223372036854775807);
+#if (defined(COMPILER_GCC))
+        REQUIRE(lla2.max_node_size() == 0x7fffffffffffffff);
+#elif (defined(COMPILER_CLANG))
+        REQUIRE(lla2.max_node_size() == 0xffffffffffffffff);
+#endif
     }
 
     SECTION("malloc")
@@ -74,13 +83,21 @@ TEST_CASE("lowlevel_allocator", "[lowlevel_allocator]")
         REQUIRE(ptr != nullptr);
         lla.deallocate_node(ptr, 32, 32);
         ptr = nullptr;
-        REQUIRE(lla.max_node_size() == 9223372036854775807);
+#if (defined(COMPILER_GCC))
+        REQUIRE(lla.max_node_size() == 0x7fffffffffffffff);
+#elif (defined(COMPILER_CLANG))
+        REQUIRE(lla.max_node_size() == 0xffffffffffffffff);
+#endif
 
         lowlevel_allocator<malloc_functor> lla2 = std::move(lla);
         ptr = lla2.allocate_node(64, 32);
         REQUIRE(ptr != nullptr);
         lla2.deallocate_node(ptr, 64, 32);
         ptr = nullptr;
-        REQUIRE(lla2.max_node_size() == 9223372036854775807);
+#if (defined(COMPILER_GCC))
+        REQUIRE(lla2.max_node_size() == 0x7fffffffffffffff);
+#elif (defined(COMPILER_CLANG))
+        REQUIRE(lla2.max_node_size() == 0xffffffffffffffff);
+#endif
     }
 }
