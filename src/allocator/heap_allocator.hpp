@@ -5,7 +5,6 @@
 
 
 // Functor controls low-level allocation:
-// static allocator_info info()
 // static void* allocate(std::size_t size, std::size_t alignment);
 // static void deallocate(void *memory, std::size_t size, std::size_t alignment);
 // static std::size_t max_node_size();
@@ -67,7 +66,7 @@ public:
 /// nullptr if no memory is available. It must be thread safe. \defaultbe On a hosted implementation
 /// this function uses OS specific facilities, \c std::malloc is used as fallback. \ingroup memory
 /// allocator
-void*
+inline void*
 heap_alloc(std::size_t size) noexcept
 {
     return std::malloc(size);
@@ -80,7 +79,7 @@ heap_alloc(std::size_t size) noexcept
 /// same size. It shall free the memory. The pointer will not be zero. It must be thread safe.
 /// \defaultbe On a hosted implementation this function uses OS specific facilities, \c std::free is
 /// used as fallback. \ingroup memory allocator
-void
+inline void
 heap_dealloc(void* ptr, std::size_t /*size*/) noexcept
 {
     std::free(ptr);
