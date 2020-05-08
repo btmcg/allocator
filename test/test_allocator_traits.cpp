@@ -32,8 +32,8 @@ TEST_CASE("allocator_traits", "[allocator_traits]")
         REQUIRE(ac.allocate_array(alloc, 10, 32, 8) == nullptr);
         ac.deallocate_node(alloc, nullptr, 32, 8);
         ac.deallocate_array(alloc, nullptr, 10, 32, 8);
-        REQUIRE(ac.max_node_size(alloc) == 18446744073709551615u);
-        REQUIRE(ac.max_array_size(alloc) == 18446744073709551615u);
+        REQUIRE(ac.max_node_size(alloc) == 0xffffffffffffffff);
+        REQUIRE(ac.max_array_size(alloc) == 0xffffffffffffffff);
         REQUIRE(ac.max_alignment(alloc) == 16);
     }
 }
