@@ -69,12 +69,10 @@ TEST_CASE("memory_block_stack", "[memory_block_stack]")
         swap(mbs1, mbs2);
 
         memory_block mb1_popped = mbs1.pop();
-        // REQUIRE(mbs1.size() == 1);
         REQUIRE(mb1_popped.memory == mb2.memory);
         REQUIRE(mb1_popped.size == mb2.size);
 
         memory_block mb2_popped = mbs2.pop();
-        // REQUIRE(mbs2.size() == 1);
         REQUIRE(mb2_popped.memory == mb1.memory);
         REQUIRE(mb2_popped.size == mb1.size);
 
@@ -103,5 +101,19 @@ TEST_CASE("memory_block_stack", "[memory_block_stack]")
 
         std::free(mb1.memory);
         std::free(mb2.memory);
+    }
+
+    SECTION("owns")
+    {
+        memory_block mb(std::malloc(1024), 1024);
+
+        memory_block_stack mbs;
+        mbs.push(mb);
+
+        REQUIRE(mbs.owns(static_cast<std::byte*>(mb.memory) + 1));
+        REQUIRE_FALSE(mbs.owns(nullptr));
+        REQUIRE_FALSE(mbs.owns(static_cast<std::byte*>(mb.memory) - 1));
+
+        std::free(mb.memory);
     }
 }
