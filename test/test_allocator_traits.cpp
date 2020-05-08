@@ -23,25 +23,57 @@ struct dummy_allocator
 
 struct malloc_allocator
 {
-    void*
+    static std::size_t const alignment = 8;
+    static std::size_t const node_size = 64;
+
+    static void*
     allocate_node(std::size_t size, std::size_t alignment)
     {
         fmt::print("malloc_allocator::allocate_node({}, {})\n", size, alignment);
         return std::malloc(size);
     }
 
-    void
+    static void*
+    allocate_array(std::size_t count, std::size_t size, std::size_t alignment)
+    {
+        fmt::print("malloc_allocator::allocate_array({}, {}, {})\n", count, size, alignment);
+        return std::malloc(size * count);
+    }
+
+    static void
     deallocate_node(void* ptr, std::size_t size, std::size_t alignment)
     {
         fmt::print("malloc_allocator::deallocate_node({}, {}, {})\n", ptr, size, alignment);
         std::free(ptr);
     }
 
-    std::size_t
+    static void
+    deallocate_array(void* ptr, std::size_t count, std::size_t size, std::size_t alignment)
+    {
+        fmt::print("malloc_allocator::deallocate_array({}, {}, {}, {})\n", ptr, count, size,
+                alignment);
+        std::free(ptr);
+    }
+
+    static std::size_t
     max_alignment()
     {
         fmt::print("malloc_allocator::max_alignment()\n");
-        return 8;
+        return alignment;
+    }
+
+    static std::size_t
+    max_node_size()
+    {
+        fmt::print("malloc_allocator::max_node_size()\n");
+        return node_size;
+    }
+
+    static std::size_t
+    max_array_size()
+    {
+        fmt::print("malloc_allocator::max_array_size()\n");
+        return node_size * 10;
     }
 };
 
@@ -76,8 +108,8 @@ TEST_CASE("allocator_traits", "[allocator_traits]")
         ac.deallocate_node(alloc, node_ptr, 32, 8);
         ac.deallocate_array(alloc, arr_ptr, 10, 32, 8);
 
-        REQUIRE(ac.max_node_size(alloc) == 0xffffffffffffffff);
-        REQUIRE(ac.max_array_size(alloc) == 0xffffffffffffffff);
-        REQUIRE(ac.max_alignment(alloc) == 16);
+        REQUIRE(ac.max_node_size(alloc) == 64);
+        REQUIRE(ac.max_array_size(alloc) == 640);
+        REQUIRE(ac.max_alignment(alloc) == 8);
     }
 }
