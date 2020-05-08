@@ -31,36 +31,39 @@ constexpr std::size_t memory_block_stack::node::offset
 constexpr std::size_t memory_block_stack::implementation_offset = memory_block_stack::node::offset;
 
 
-void memory_block_stack::push(allocated_mb block) noexcept
+void
+memory_block_stack::push(allocated_mb block) noexcept
 {
     DEBUG_ASSERT(is_aligned(block.memory, max_alignment));
     auto next = ::new (block.memory) node(head_, block.size - node::offset);
-    head_     = next;
+    head_ = next;
 }
 
-memory_block_stack::allocated_mb memory_block_stack::pop() noexcept
+memory_block_stack::allocated_mb
+memory_block_stack::pop() noexcept
 {
     DEBUG_ASSERT(head_);
     auto to_pop = head_;
-    head_       = head_->prev;
+    head_ = head_->prev;
     return {to_pop, to_pop->usable_size + node::offset};
 }
 
-void memory_block_stack::steal_top(memory_block_stack& other) noexcept
+void
+memory_block_stack::steal_top(memory_block_stack& other) noexcept
 {
     DEBUG_ASSERT(other.head_);
     auto to_steal = other.head_;
-    other.head_   = other.head_->prev;
+    other.head_ = other.head_->prev;
 
     to_steal->prev = head_;
-    head_          = to_steal;
+    head_ = to_steal;
 }
 
-bool memory_block_stack::owns(const void* ptr) const noexcept
+bool
+memory_block_stack::owns(const void* ptr) const noexcept
 {
     auto address = static_cast<const char*>(ptr);
-    for (auto cur = head_; cur; cur = cur->prev)
-    {
+    for (auto cur = head_; cur; cur = cur->prev) {
         auto mem = static_cast<char*>(static_cast<void*>(cur));
         if (address >= mem && address < mem + cur->usable_size)
             return true;
@@ -68,7 +71,8 @@ bool memory_block_stack::owns(const void* ptr) const noexcept
     return false;
 }
 
-std::size_t memory_block_stack::size() const noexcept
+std::size_t
+memory_block_stack::size() const noexcept
 {
     std::size_t res = 0u;
     for (auto cur = head_; cur; cur = cur->prev)
@@ -76,11 +80,10 @@ std::size_t memory_block_stack::size() const noexcept
     return res;
 }
 
-memory_block_stack::inserted_mb memory_block_stack::top() const noexcept
+memory_block_stack::inserted_mb
+memory_block_stack::top() const noexcept
 {
     DEBUG_ASSERT(head_);
     auto mem = static_cast<void*>(head_);
     return {static_cast<char*>(mem) + node::offset, head_->usable_size};
 }
-
-
