@@ -121,9 +121,10 @@ TEST_CASE("std_allocator", "[std_allocator]")
         REQUIRE(ptr->get_c());
 
         sa.destroy(ptr);
-        REQUIRE(ptr->get_a() == 0);
-        REQUIRE(ptr->get_b() == Approx(0.0));
-        REQUIRE_FALSE(ptr->get_c());
+        // can be optimized out in -O3
+        // REQUIRE(ptr->get_a() == 0);
+        // REQUIRE(ptr->get_b() == Approx(0.0));
+        // REQUIRE_FALSE(ptr->get_c());
 
         sa.deallocate(ptr, 1);
     }

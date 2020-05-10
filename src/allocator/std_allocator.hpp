@@ -138,8 +138,6 @@ public:
     void
     destroy(U* p) noexcept
     {
-        // This is to avoid a MSVS 2015 'unreferenced formal parameter' warning
-        (void)p;
         p->~U();
     }
 
