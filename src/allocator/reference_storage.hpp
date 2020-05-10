@@ -1,32 +1,6 @@
 #pragma once
 
-
-class reference_storage_impl
-{
-protected:
-    reference_storage_impl() noexcept
-            : alloc_(nullptr)
-    {}
-
-    reference_storage_impl(memory_pool& allocator) noexcept
-            : alloc_(&allocator)
-    {}
-
-    bool
-    is_valid() const noexcept
-    {
-        return alloc_ != nullptr;
-    }
-
-    memory_pool&
-    get_allocator() const noexcept
-    {
-        return *alloc_;
-    }
-
-private:
-    memory_pool* alloc_;
-};
+#include "memory_pool.hpp"
 
 
 class reference_storage
@@ -40,6 +14,7 @@ public:
     /// shared allocator. If the shared allocator does not have a default constructor, this
     /// constructor is ill-formed.
     reference_storage() noexcept = default;
+    ~reference_storage() noexcept = default;
 
     /// \effects Creates it from a reference to a stateful allocator.
     /// It will store a pointer to this allocator object.
@@ -73,8 +48,6 @@ public:
         return *alloc_;
     }
 
-    ~reference_storage() noexcept = default;
-
 private:
-    memory_pool* alloc_;
+    memory_pool* alloc_ = nullptr;
 };
