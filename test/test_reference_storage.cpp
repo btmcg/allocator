@@ -1,5 +1,5 @@
-#include "allocator/reference_storage.hpp"
 #include "allocator/memory_pool.hpp"
+#include "allocator/reference_storage.hpp"
 #include <catch2/catch.hpp>
 #include <fmt/format.h>
 #include <cstddef> // std::byte
