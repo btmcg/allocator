@@ -10,60 +10,6 @@
 #include <utility>
 
 
-// class memory_arena
-// {
-// public:
-//     memory_arena(std::size_t block_size)
-//             : block_size_(block_size)
-//     {}
-
-//     memory_block
-//     allocate_block()
-//     {
-//         void* mem = std::malloc(block_size_);
-//         memory_block mb(mem, block_size_);
-//         return mb;
-//     }
-
-// private:
-//     std::size_t block_size_ = 0;
-// };
-
-
-// class memory_pool
-// {
-// public:
-//     memory_pool(std::size_t node_size, std::size_t block_size)
-//             : arena_(block_size)
-//             , free_list_(node_size)
-//     {
-//         allocate_block();
-//     }
-
-//     void*
-//     allocate_node()
-//     {
-//         if (free_list_.empty())
-//             allocate_block();
-
-//         DEBUG_ASSERT(!free_list_.empty());
-//         return free_list_.allocate();
-//     }
-
-// private:
-//     void
-//     allocate_block()
-//     {
-//         memory_block mb = arena_.allocate_block();
-//         free_list_.insert(mb.addr, mb.size);
-//     }
-
-// private:
-//     memory_arena arena_;
-//     free_list free_list_;
-// };
-
-
 /// A stateful \concept{concept_rawallocator,RawAllocator} that manages \concept{concept_node,nodes}
 /// of fixed size. It uses a \ref memory_arena with a given \c BlockOrRawAllocator defaulting to
 /// \ref growing_block_allocator, subdivides them in small nodes of given size and puts them onto a
