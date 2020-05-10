@@ -130,7 +130,7 @@ public:
     construct(U* p, Args&&... args)
     {
         void* mem = p;
-        ::new (mem) U(forward<Args>(args)...);
+        ::new (mem) U(std::forward<Args>(args)...);
     }
 
     /// \effects Calls the destructor for an object of type \c U at given address.

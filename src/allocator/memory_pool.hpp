@@ -36,7 +36,7 @@ public:
     /// non-zero value.
     template <typename... Args>
     memory_pool(std::size_t node_size, std::size_t block_size, Args&&... args)
-            : arena_(block_size, forward<Args>(args)...)
+            : arena_(block_size, std::forward<Args>(args)...)
             , free_list_(node_size)
     {
         allocate_block();
