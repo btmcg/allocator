@@ -2,6 +2,7 @@
 
 #include "allocator_storage.hpp"
 #include "memory_pool.hpp"
+#include "reference_storage.hpp"
 #include <type_traits> // std::true_type
 #include <utility> // std::forward
 
@@ -191,13 +192,6 @@ private:
         return &get_allocator() == &other.get_allocator();
     }
 
-    template <typename U> // shared
-    bool
-    equal_to(const std_allocator<U, RawAllocator>& other) const noexcept
-    {
-        return get_allocator() == other.get_allocator();
-    }
-
     template <typename T1, typename T2, class Impl>
     friend bool operator==(
             const std_allocator<T1, Impl>& lhs, const std_allocator<T2, Impl>& rhs) noexcept;
@@ -205,3 +199,23 @@ private:
     template <typename U, class OtherRawAllocator>
     friend class std_allocator;
 };
+
+
+/// \effects Compares two \ref std_allocator object, they are equal if either stateless or reference
+/// the same allocator. \returns The result of the comparision for equality. \relates std_allocator
+template <typename T, typename U, class Impl>
+bool
+operator==(const std_allocator<T, Impl>& lhs, const std_allocator<U, Impl>& rhs) noexcept
+{
+    return lhs.equal_to_impl(rhs);
+}
+
+/// \effects Compares two \ref std_allocator object, they are equal if either stateless or reference
+/// the same allocator. \returns The result of the comparision for inequality. \relates
+/// std_allocator
+template <typename T, typename U, class Impl>
+bool
+operator!=(const std_allocator<T, Impl>& lhs, const std_allocator<U, Impl>& rhs) noexcept
+{
+    return !(lhs == rhs);
+}
