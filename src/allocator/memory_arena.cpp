@@ -21,6 +21,8 @@ is_aligned(void* ptr, std::size_t alignment) noexcept
 
 constexpr std::size_t max_alignment = alignof(std::max_align_t);
 
+/**********************************************************************/
+
 constexpr std::size_t memory_block_stack::node::div_alignment
         = sizeof(memory_block_stack::node) / max_alignment;
 constexpr std::size_t memory_block_stack::node::mod_offset
@@ -30,6 +32,38 @@ constexpr std::size_t memory_block_stack::node::offset
 
 constexpr std::size_t memory_block_stack::implementation_offset = memory_block_stack::node::offset;
 
+memory_block_stack::memory_block_stack() noexcept
+        : head_(nullptr)
+{}
+
+memory_block_stack::~memory_block_stack() noexcept
+{}
+
+memory_block_stack::memory_block_stack(memory_block_stack&& other) noexcept
+        : head_(other.head_)
+{
+    other.head_ = nullptr;
+}
+
+memory_block_stack&
+memory_block_stack::operator=(memory_block_stack&& other) noexcept
+{
+    memory_block_stack tmp(std::move(other));
+    swap(*this, tmp);
+    return *this;
+}
+
+bool
+memory_block_stack::empty() const noexcept
+{
+    return head_ == nullptr;
+}
+
+void
+swap(memory_block_stack& a, memory_block_stack& b) noexcept
+{
+    std::swap(a.head_, b.head_);
+}
 
 void
 memory_block_stack::push(allocated_mb block) noexcept

@@ -118,37 +118,17 @@ private:
     std::size_t block_size_;
 };
 
+/**********************************************************************/
 
-// stores memory block in an intrusive linked list and allows LIFO access
+/// stores memory block in an intrusive linked list and allows LIFO access
 class memory_block_stack
 {
 public:
-    memory_block_stack() noexcept
-            : head_(nullptr)
-    {}
-
-    ~memory_block_stack() noexcept
-    {}
-
-    memory_block_stack(memory_block_stack&& other) noexcept
-            : head_(other.head_)
-    {
-        other.head_ = nullptr;
-    }
-
-    memory_block_stack&
-    operator=(memory_block_stack&& other) noexcept
-    {
-        memory_block_stack tmp(std::move(other));
-        swap(*this, tmp);
-        return *this;
-    }
-
-    friend void
-    swap(memory_block_stack& a, memory_block_stack& b) noexcept
-    {
-        std::swap(a.head_, b.head_);
-    }
+    memory_block_stack() noexcept;
+    ~memory_block_stack() noexcept;
+    memory_block_stack(memory_block_stack&& other) noexcept;
+    memory_block_stack& operator=(memory_block_stack&& other) noexcept;
+    friend void swap(memory_block_stack& a, memory_block_stack& b) noexcept;
 
     // the raw allocated block returned from an allocator
     using allocated_mb = memory_block;
@@ -171,12 +151,7 @@ public:
     // returns the last pushed() inserted memory block
     inserted_mb top() const noexcept;
 
-    bool
-    empty() const noexcept
-    {
-        return head_ == nullptr;
-    }
-
+    bool empty() const noexcept;
     bool owns(const void* ptr) const noexcept;
 
     // O(n) size
