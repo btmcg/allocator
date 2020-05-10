@@ -272,8 +272,7 @@ public:
     void
     deallocate_block() noexcept
     {
-        // auto block = used_.top();
-        this->do_deallocate_block(get_allocator(), used_);
+        get_allocator().deallocate_block(used_.pop());
     }
 
     /// \returns If `ptr` is in memory owned by the arena.
