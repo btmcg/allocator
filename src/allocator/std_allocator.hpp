@@ -170,17 +170,37 @@ public:
 
 private:
     // any_allocator_reference: use virtual function which already does a dispatch on node/array
-    void* allocate_impl(size_type /*n*/)
+    void*
+    allocate_impl(size_type n)
     {
-        // return get_allocator()->allocate_impl(n, sizeof(T), alignof(T));
-        return get_allocator().allocate_node();
+        if (n == 1)
+            return get_allocator().allocate_node();
+        else
+            return get_allocator().allocate_array(n);
+
+
+        // if (n == 1)
+        //     return get_allocator().allocate_node(sizeof(T), alignof(T));
+        // else
+        //     return get_allocator().allocate_array(n, sizeof(T), alignof(T));
+
+        // return get_allocator().allocate_node();
     }
 
     void
-    deallocate_impl(void* ptr, size_type /*n*/)
+    deallocate_impl(void* ptr, size_type n)
     {
-        // get_allocator()->deallocate_impl(ptr, n, sizeof(T), alignof(T));
-        get_allocator().deallocate_node(ptr);
+        if (n == 1)
+            get_allocator().deallocate_node(ptr);
+        else
+            get_allocator().deallocate_array(ptr, n);
+
+        // if (n == 1)
+        //     get_allocator().deallocate_node(ptr, sizeof(T), alignof(T));
+        // else
+        //     get_allocator().deallocate_array(ptr, n, sizeof(T), alignof(T));
+
+        // get_allocator().deallocate_node(ptr);
     }
 
     template <typename U> // stateful

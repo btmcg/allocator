@@ -3,8 +3,8 @@
 #include <benchmark/benchmark.h>
 #include <cstdint>
 #include <list>
-#include <unordered_map>
 #include <random>
+#include <unordered_map>
 
 class object
 {
@@ -41,7 +41,8 @@ mp_list(benchmark::State& state)
 {
     std::random_device dev;
     std::mt19937 rng(dev());
-    std::uniform_int_distribution<std::mt19937::result_type> dist(0, std::numeric_limits<int>::max());
+    std::uniform_int_distribution<std::mt19937::result_type> dist(
+            0, std::numeric_limits<int>::max());
 
     constexpr std::size_t node_size = 16 + sizeof(object);
     memory_pool pool(node_size, 100'000'000);
@@ -56,7 +57,8 @@ std_list(benchmark::State& state)
 {
     std::random_device dev;
     std::mt19937 rng(dev());
-    std::uniform_int_distribution<std::mt19937::result_type> dist(0, std::numeric_limits<int>::max());
+    std::uniform_int_distribution<std::mt19937::result_type> dist(
+            0, std::numeric_limits<int>::max());
 
     std::list<object> list;
     for (auto _ : state)
@@ -64,28 +66,32 @@ std_list(benchmark::State& state)
 }
 BENCHMARK(std_list);
 
-// static void
-// mp_unordered_map(benchmark::State& state)
-// {
-//     std::random_device dev;
-//     std::mt19937 rng(dev());
-//     std::uniform_int_distribution<std::mt19937::result_type> dist(0, std::numeric_limits<int>::max());
+static void
+mp_unordered_map(benchmark::State& state)
+{
+    std::random_device dev;
+    std::mt19937 rng(dev());
+    std::uniform_int_distribution<std::mt19937::result_type> dist(
+            0, std::numeric_limits<int>::max());
 
-//     constexpr std::size_t node_size = 16 + sizeof(std::pair<const int, object>);
-//     memory_pool pool(node_size, 100'000'000);
-//     std::unordered_map<int, object, std::hash<int>, std::equal_to<int>, std_allocator<std::pair<const int, object>, memory_pool>> map(pool);
+    constexpr std::size_t node_size = 16 + sizeof(std::pair<const int, object>);
+    memory_pool pool(node_size, 100'000'000);
+    std::unordered_map<int, object, std::hash<int>, std::equal_to<int>,
+            std_allocator<std::pair<const int, object>, memory_pool>>
+            map(pool);
 
-//     for (auto _ : state)
-//         map.emplace(dist(rng), object(dist(rng), static_cast<std::uint64_t>(dist(rng)), dist(rng)));
-// }
-// BENCHMARK(mp_unordered_map);
+    for (auto _ : state)
+        map.emplace(dist(rng), object(dist(rng), static_cast<std::uint64_t>(dist(rng)), dist(rng)));
+}
+BENCHMARK(mp_unordered_map);
 
 static void
 std_unordered_map(benchmark::State& state)
 {
     std::random_device dev;
     std::mt19937 rng(dev());
-    std::uniform_int_distribution<std::mt19937::result_type> dist(0, std::numeric_limits<int>::max());
+    std::uniform_int_distribution<std::mt19937::result_type> dist(
+            0, std::numeric_limits<int>::max());
 
     std::unordered_map<int, object> map;
     for (auto _ : state)

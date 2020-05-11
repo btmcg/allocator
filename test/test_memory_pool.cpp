@@ -112,30 +112,46 @@ TEST_CASE("memory_pool", "[memory_pool]")
 
     SECTION("unordered_map")
     {
-        struct obj
+        class object
         {
-            std::string str;
-            int i;
+        public:
+            object(int a, std::uint64_t b, int c) noexcept
+                    : a_(a)
+                    , b_(b)
+                    , c_(c)
+            {}
+            int
+            get_a() const noexcept
+            {
+                return a_;
+            }
+            int
+            get_b() const noexcept
+            {
+                return b_;
+            }
+            int
+            get_c() const noexcept
+            {
+                return c_;
+            }
+
+        private:
+            int a_;
+            std::uint64_t b_;
+            int c_;
         };
-        constexpr std::size_t um_node_size = 32 + sizeof(std::pair<const int, obj>);
+        constexpr std::size_t um_node_size = 32 + sizeof(std::pair<const int, object>);
 
         memory_pool pool(um_node_size, 4096);
-        std::unordered_map<int, obj, std::hash<int>, std::equal_to<int>,
-                std_allocator<std::pair<const int, obj>, memory_pool>>
+        std::unordered_map<int, object, std::hash<int>, std::equal_to<int>,
+                std_allocator<std::pair<const int, object>, memory_pool>>
                 map(pool);
 
-        map.emplace(0, obj{"zero", 0});
-        map[1] = obj{"one", 1};
-        map.emplace(2, obj{"two", 2});
-        map[3] = obj{"three", 3};
-        map.emplace(4, obj{"four", 4});
-        map[5] = obj{"five", 5};
-        map.emplace(6, obj{"six", 6});
-        map[7] = obj{"seven", 7};
-        map.emplace(8, obj{"eight", 8});
-        map[9] = obj{"nine", 9};
+        for (int i = 0; i < 10; ++i)
+            map.emplace(i, object(i, static_cast<std::uint64_t>(i), i));
 
         for (auto const& itr : map)
-            REQUIRE(itr.first == itr.second.i);
+            REQUIRE(itr.first == itr.second.get_a());
     }
 }
