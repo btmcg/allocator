@@ -3,8 +3,10 @@
 #include "allocator/reference_storage.hpp"
 #include "allocator/std_allocator.hpp"
 #include <catch2/catch.hpp>
+#include <fmt/format.h>
 #include <cstdint>
 #include <list>
+#include <string>
 #include <unordered_map>
 
 
@@ -89,34 +91,51 @@ TEST_CASE("memory_pool", "[memory_pool]")
 
     SECTION("int list")
     {
-        memory_pool pool(sizeof(int) + 16, 4096);
+        constexpr std::size_t l_node_size = 16 + sizeof(int);
+
+        memory_pool pool(l_node_size, 4096);
         std::list<int, std_allocator<int, memory_pool>> list(pool);
         list.push_back(0);
-        list.push_back(1);
+        list.emplace_back(1);
         list.push_back(2);
         list.emplace_back(3);
+        list.push_back(4);
+        list.emplace_back(5);
+        list.push_back(6);
+        list.emplace_back(7);
+        list.push_back(8);
+        list.emplace_back(9);
 
-        int i = 0;
-        for (auto itr : list)
+        for (int i = 0; auto itr : list)
             REQUIRE(itr == i++);
     }
 
     SECTION("unordered_map")
     {
-        memory_pool pool(sizeof(std::pair<const int, double>) + 32, 400 * 1024);
-        std::unordered_map<int, double, std::hash<int>, std::equal_to<int>,
-                std_allocator<std::pair<const int, double>, memory_pool>>
+        struct obj
+        {
+            std::string str;
+            int i;
+        };
+        constexpr std::size_t um_node_size = 32 + sizeof(std::pair<const int, obj>);
+
+        memory_pool pool(um_node_size, 4096);
+        std::unordered_map<int, obj, std::hash<int>, std::equal_to<int>,
+                std_allocator<std::pair<const int, obj>, memory_pool>>
                 map(pool);
 
-        // map.emplace(0, 0.0);
-        // map.emplace(1, 10.0);
-        // map.emplace(2, 20.0);
-        // map.emplace(3, 30.0);
-        // map.emplace(4, 40.0);
-        map[0] = 0.0;
-        map[1] = 10.0;
-        map[2] = 20.0;
-        map[3] = 30.0;
-        map[4] = 40.0;
+        map.emplace(0, obj{"zero", 0});
+        map[1] = obj{"one", 1};
+        map.emplace(2, obj{"two", 2});
+        map[3] = obj{"three", 3};
+        map.emplace(4, obj{"four", 4});
+        map[5] = obj{"five", 5};
+        map.emplace(6, obj{"six", 6});
+        map[7] = obj{"seven", 7};
+        map.emplace(8, obj{"eight", 8});
+        map[9] = obj{"nine", 9};
+
+        for (auto const& itr : map)
+            REQUIRE(itr.first == itr.second.i);
     }
 }
