@@ -205,9 +205,9 @@ free_list::allocate(std::size_t n) noexcept
     if (n <= node_size_)
         return allocate();
 
-    auto actual_size = node_size_ + 2 * fence_size();
+    auto actual_size = node_size_;
 
-    auto i = list_search_array(first_, n + 2 * fence_size(), actual_size);
+    auto i = list_search_array(first_, n, actual_size);
     if (i.first == nullptr)
         return nullptr;
 
@@ -237,7 +237,7 @@ free_list::deallocate(void* ptr, std::size_t n) noexcept
         deallocate(ptr);
     else {
         auto mem = ptr;
-        insert_impl(mem, n + 2 * fence_size());
+        insert_impl(mem, n);
     }
 }
 
@@ -247,16 +247,10 @@ free_list::alignment() const noexcept
     return alignment_for(node_size_);
 }
 
-std::size_t
-free_list::fence_size() const noexcept
-{
-    return 0u;
-}
-
 void
 free_list::insert_impl(void* mem, std::size_t size) noexcept
 {
-    auto actual_size = node_size_ + 2 * fence_size();
+    auto actual_size = node_size_;
     auto no_nodes = size / actual_size;
     DEBUG_ASSERT(no_nodes > 0);
 
@@ -270,120 +264,3 @@ free_list::insert_impl(void* mem, std::size_t size) noexcept
 
     capacity_ += no_nodes;
 }
-
-
-// #include "free_list.hpp"
-// #include "common/assert.hpp"
-// #include <cstring> // std::memcpy
-
-
-// free_list::free_list(std::size_t node_size) noexcept
-//         : first_(nullptr)
-//         , node_size_(node_size > min_element_size ? node_size : min_element_size)
-//         , capacity_(0)
-// {
-//     // empty
-// }
-
-// free_list::free_list(std::size_t node_size, void* addr, std::size_t size) noexcept
-//         : first_(nullptr)
-//         , node_size_(node_size > min_element_size ? node_size : min_element_size)
-//         , capacity_(0)
-// {
-//     insert(addr, size);
-// }
-
-// free_list::free_list(free_list&& rhs) noexcept
-//         : first_(rhs.first_)
-//         , node_size_(rhs.node_size_)
-//         , capacity_(rhs.capacity_)
-// {
-//     rhs.first_ = nullptr;
-//     rhs.capacity_ = 0;
-// }
-
-// bool
-// free_list::empty() const noexcept
-// {
-//     return first_ == nullptr;
-// }
-
-// std::size_t
-// free_list::capacity() const noexcept
-// {
-//     return capacity_;
-// }
-
-// std::size_t
-// free_list::node_size() const noexcept
-// {
-//     return node_size_;
-// }
-
-// void
-// free_list::insert(void* addr, std::size_t size) noexcept
-// {
-//     std::size_t const actual_size = node_size_;
-//     std::size_t const num_nodes = size / actual_size;
-//     DEBUG_ASSERT(num_nodes > 0);
-
-//     std::byte* cur = static_cast<decltype(cur)>(addr);
-//     for (std::size_t i = 0; i < num_nodes; ++i) {
-//         set_next(cur, cur + actual_size);
-//         cur += actual_size;
-//     }
-//     set_next(cur, first_);
-//     first_ = static_cast<decltype(first_)>(addr);
-//     capacity_ = num_nodes;
-// }
-
-// void*
-// free_list::allocate() noexcept
-// {
-//     if (capacity() == 0)
-//         return nullptr;
-
-//     --capacity_;
-
-//     std::byte* tmp = first_;
-//     first_ = get_next(first_);
-//     return tmp;
-// }
-
-// void
-// free_list::deallocate(void* addr) noexcept
-// {
-//     DEBUG_ASSERT(addr != nullptr);
-//     ++capacity_;
-
-//     std::byte* node = static_cast<decltype(node)>(addr);
-//     set_next(node, first_);
-//     first_ = node;
-// }
-
-// void
-// free_list::set_next(void* addr, std::byte* ptr) noexcept
-// {
-//     set_int(addr, reinterpret_cast<std::uintptr_t>(ptr));
-// }
-
-// void
-// free_list::set_int(void* addr, std::uintptr_t i) noexcept
-// {
-//     std::memcpy(addr, &i, sizeof(std::uintptr_t));
-// }
-
-// std::uintptr_t
-// free_list::get_int(void* addr) noexcept
-// {
-//     DEBUG_ASSERT(addr != nullptr);
-//     std::uintptr_t i = 0;
-//     std::memcpy(&i, addr, sizeof(std::uintptr_t));
-//     return i;
-// }
-
-// std::byte*
-// free_list::get_next(void* addr) noexcept
-// {
-//     return reinterpret_cast<std::byte*>(get_int(addr));
-// }

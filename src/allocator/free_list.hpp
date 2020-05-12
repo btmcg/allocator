@@ -80,41 +80,8 @@ public:
     }
 
 private:
-    std::size_t fence_size() const noexcept;
     void insert_impl(void* mem, std::size_t size) noexcept;
 
     char* first_;
     std::size_t node_size_, capacity_;
 };
-
-/// TODO/FIXME
-// class free_list
-// {
-// public:
-//     static constexpr std::size_t min_element_size = sizeof(std::uintptr_t);
-
-// public:
-//     explicit free_list(std::size_t node_size) noexcept;
-//     free_list(std::size_t node_size, void* addr, std::size_t size) noexcept;
-//     ~free_list() noexcept = default;
-//     free_list(free_list&&) noexcept;
-
-//     bool empty() const noexcept;
-//     std::size_t capacity() const noexcept; ///< num elements available to allocate
-//     std::size_t node_size() const noexcept;
-
-//     void insert(void* addr, std::size_t) noexcept;
-//     void* allocate() noexcept;
-//     void deallocate(void*) noexcept;
-
-// private:
-//     void set_next(void*, std::byte*) noexcept;
-//     void set_int(void*, std::uintptr_t) noexcept;
-//     std::uintptr_t get_int(void*) noexcept;
-//     std::byte* get_next(void*) noexcept;
-
-// private:
-//     std::byte* first_;
-//     std::size_t node_size_;
-//     std::size_t capacity_;
-// };
