@@ -36,11 +36,7 @@ public:
 
     // returns the usable size
     // i.e. how many memory will be actually inserted and usable on a call to insert()
-    std::size_t
-    usable_size(std::size_t size) const noexcept
-    {
-        return size;
-    }
+    std::size_t usable_size(std::size_t size) const noexcept;
 
     // returns a single block from the list
     // pre: !empty()
@@ -57,31 +53,21 @@ public:
     void deallocate(void* ptr, std::size_t n) noexcept;
 
     //=== getter ===//
-    std::size_t
-    node_size() const noexcept
-    {
-        return node_size_;
-    }
+    std::size_t node_size() const noexcept;
 
     // alignment of all nodes
     std::size_t alignment() const noexcept;
 
     // number of nodes remaining
-    std::size_t
-    capacity() const noexcept
-    {
-        return capacity_;
-    }
+    std::size_t capacity() const noexcept;
 
-    bool
-    empty() const noexcept
-    {
-        return first_ == nullptr;
-    }
+    bool empty() const noexcept;
 
 private:
     void insert_impl(void* mem, std::size_t size) noexcept;
 
+private:
     char* first_;
-    std::size_t node_size_, capacity_;
+    std::size_t node_size_;
+    std::size_t capacity_;
 };

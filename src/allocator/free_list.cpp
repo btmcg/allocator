@@ -187,6 +187,12 @@ free_list::insert(void* mem, std::size_t size) noexcept
     insert_impl(mem, size);
 }
 
+std::size_t
+free_list::usable_size(std::size_t size) const noexcept
+{
+    return size;
+}
+
 void*
 free_list::allocate() noexcept
 {
@@ -242,9 +248,27 @@ free_list::deallocate(void* ptr, std::size_t n) noexcept
 }
 
 std::size_t
+free_list::node_size() const noexcept
+{
+    return node_size_;
+}
+
+std::size_t
 free_list::alignment() const noexcept
 {
     return alignment_for(node_size_);
+}
+
+std::size_t
+free_list::capacity() const noexcept
+{
+    return capacity_;
+}
+
+bool
+free_list::empty() const noexcept
+{
+    return first_ == nullptr;
 }
 
 void
