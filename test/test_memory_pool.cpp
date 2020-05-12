@@ -91,12 +91,12 @@ TEST_CASE("memory_pool", "[memory_pool]")
 
     SECTION("int list")
     {
-        constexpr std::size_t l_node_size = 16 + sizeof(int);
+        constexpr std::size_t l_node_size = sizeof(std::int64_t) + (sizeof(std::uintptr_t) * 2);
 
         memory_pool pool(l_node_size, 4096);
         std::list<int, std_allocator<int, memory_pool>> list(pool);
         list.push_back(0);
-        list.emplace_back(1);
+        list.push_back(1);
         list.push_back(2);
         list.emplace_back(3);
         list.push_back(4);
