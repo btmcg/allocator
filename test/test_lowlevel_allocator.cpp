@@ -5,7 +5,6 @@
 #include <cstddef> // std::byte
 #include <cstdint>
 #include <memory> // std::allocator_traits
-#include <new> // std::bad_alloc
 
 
 struct dummy_functor
@@ -58,7 +57,7 @@ TEST_CASE("lowlevel_allocator", "[lowlevel_allocator]")
     SECTION("dummy")
     {
         lowlevel_allocator<dummy_functor> lla;
-        REQUIRE_THROWS_AS(lla.allocate_node(32, 32), std::bad_alloc);
+        REQUIRE_THROWS_AS(lla.allocate_node(32, 32), bad_allocation);
         lla.deallocate_node(nullptr, 32, 32);
 #if (defined(COMPILER_GCC))
         REQUIRE(lla.max_node_size() == 0x7fffffffffffffff);
@@ -67,7 +66,7 @@ TEST_CASE("lowlevel_allocator", "[lowlevel_allocator]")
 #endif
 
         lowlevel_allocator<dummy_functor> lla2 = std::move(lla);
-        REQUIRE_THROWS_AS(lla2.allocate_node(32, 32), std::bad_alloc);
+        REQUIRE_THROWS_AS(lla2.allocate_node(32, 32), bad_allocation);
         lla2.deallocate_node(nullptr, 32, 32);
 #if (defined(COMPILER_GCC))
         REQUIRE(lla2.max_node_size() == 0x7fffffffffffffff);

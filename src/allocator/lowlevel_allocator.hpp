@@ -11,12 +11,8 @@
 class bad_allocation : public std::bad_alloc
 {
 public:
-    bad_allocation(std::size_t size, std::size_t alignment) noexcept
-    {
-        fmt::print(stderr,
-                "lowlevel_allocator bad allocation: size={}, alignment={}, errno={}, strerror={}\n",
-                size, alignment, errno, std::strerror(errno));
-    }
+    bad_allocation() noexcept
+    {}
 
     char const*
     what() const noexcept override
@@ -26,10 +22,6 @@ public:
 };
 
 
-// Functor controls low-level allocation:
-// static void* allocate(std::size_t size, std::size_t alignment);
-// static void deallocate(void *memory, std::size_t size, std::size_t alignment);
-// static std::size_t max_node_size();
 template <class Functor>
 class lowlevel_allocator
 {
@@ -52,13 +44,9 @@ public:
     [[nodiscard]] void*
     allocate_node(std::size_t size, std::size_t alignment)
     {
-        auto actual_size = size;
-
-        auto memory = Functor::allocate(actual_size, alignment);
-        if (!memory) {
-            throw bad_allocation(actual_size, alignment);
-            // FOONATHAN_THROW(out_of_memory(Functor::info(), actual_size));
-        }
+        void* memory = Functor::allocate(size, alignment);
+        if (memory == nullptr)
+            throw bad_allocation();
 
         return memory;
     }
@@ -66,10 +54,7 @@ public:
     void
     deallocate_node(void* node, std::size_t size, std::size_t alignment) noexcept
     {
-        auto actual_size = size;
-
-        auto memory = node;
-        Functor::deallocate(memory, actual_size, alignment);
+        Functor::deallocate(node, size, alignment);
     }
 
     std::size_t
