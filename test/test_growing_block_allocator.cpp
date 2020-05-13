@@ -6,7 +6,7 @@
 #include <cstdlib> // std::malloc, std::free
 
 
-struct malloc_allocator
+struct printing_allocator
 {
     static std::size_t const alignment = 8;
     static std::size_t const node_size = 64;
@@ -14,28 +14,28 @@ struct malloc_allocator
     static void*
     allocate_node(std::size_t size, std::size_t alignment)
     {
-        fmt::print("malloc_allocator::allocate_node({}, {})\n", size, alignment);
+        fmt::print("printing_allocator::allocate_node({}, {})\n", size, alignment);
         return std::malloc(size);
     }
 
     static void*
     allocate_array(std::size_t count, std::size_t size, std::size_t alignment)
     {
-        fmt::print("malloc_allocator::allocate_array({}, {}, {})\n", count, size, alignment);
+        fmt::print("printing_allocator::allocate_array({}, {}, {})\n", count, size, alignment);
         return std::malloc(size * count);
     }
 
     static void
     deallocate_node(void* ptr, std::size_t size, std::size_t alignment)
     {
-        fmt::print("malloc_allocator::deallocate_node({}, {}, {})\n", ptr, size, alignment);
+        fmt::print("printing_allocator::deallocate_node({}, {}, {})\n", ptr, size, alignment);
         std::free(ptr);
     }
 
     static void
     deallocate_array(void* ptr, std::size_t count, std::size_t size, std::size_t alignment)
     {
-        fmt::print("malloc_allocator::deallocate_array({}, {}, {}, {})\n", ptr, count, size,
+        fmt::print("printing_allocator::deallocate_array({}, {}, {}, {})\n", ptr, count, size,
                 alignment);
         std::free(ptr);
     }
@@ -43,21 +43,21 @@ struct malloc_allocator
     static std::size_t
     max_alignment()
     {
-        fmt::print("malloc_allocator::max_alignment()\n");
+        fmt::print("printing_allocator::max_alignment()\n");
         return alignment;
     }
 
     static std::size_t
     max_node_size()
     {
-        fmt::print("malloc_allocator::max_node_size()\n");
+        fmt::print("printing_allocator::max_node_size()\n");
         return node_size;
     }
 
     static std::size_t
     max_array_size()
     {
-        fmt::print("malloc_allocator::max_array_size()\n");
+        fmt::print("printing_allocator::max_array_size()\n");
         return node_size * 10;
     }
 };
@@ -69,19 +69,19 @@ TEST_CASE("growing_block_allocator", "[growing_block_allocator]")
         growing_block_allocator<> gba1(4096);
         REQUIRE(gba1.growth_factor() == Approx(2.0));
         REQUIRE(gba1.next_block_size() == 4096);
-        lowlevel_allocator<heap_allocator>& ref = gba1.get_allocator();
+        lowlevel_allocator<malloc_allocator>& ref = gba1.get_allocator();
         void* ptr = ref.allocate_node(128, 8);
         REQUIRE(ptr != nullptr);
         ref.deallocate_node(ptr, 128, 8);
 
-        growing_block_allocator<lowlevel_allocator<heap_allocator>, 3, 2> gba2(1024);
+        growing_block_allocator<lowlevel_allocator<malloc_allocator>, 3, 2> gba2(1024);
         REQUIRE(gba2.growth_factor() == Approx(1.5));
         REQUIRE(gba2.next_block_size() == 1024);
     }
 
     SECTION("alloc-dealloc")
     {
-        growing_block_allocator<malloc_allocator> gba(1024);
+        growing_block_allocator<printing_allocator> gba(1024);
         REQUIRE(gba.growth_factor() == Approx(2.0));
 
         REQUIRE(gba.next_block_size() == 1024);

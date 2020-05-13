@@ -21,7 +21,7 @@ struct dummy_allocator
     }
 };
 
-struct malloc_allocator
+struct printing_allocator
 {
     static std::size_t const alignment = 8;
     static std::size_t const node_size = 64;
@@ -29,28 +29,28 @@ struct malloc_allocator
     static void*
     allocate_node(std::size_t size, std::size_t alignment)
     {
-        fmt::print("malloc_allocator::allocate_node({}, {})\n", size, alignment);
+        fmt::print("printing_allocator::allocate_node({}, {})\n", size, alignment);
         return std::malloc(size);
     }
 
     static void*
     allocate_array(std::size_t count, std::size_t size, std::size_t alignment)
     {
-        fmt::print("malloc_allocator::allocate_array({}, {}, {})\n", count, size, alignment);
+        fmt::print("printing_allocator::allocate_array({}, {}, {})\n", count, size, alignment);
         return std::malloc(size * count);
     }
 
     static void
     deallocate_node(void* ptr, std::size_t size, std::size_t alignment)
     {
-        fmt::print("malloc_allocator::deallocate_node({}, {}, {})\n", ptr, size, alignment);
+        fmt::print("printing_allocator::deallocate_node({}, {}, {})\n", ptr, size, alignment);
         std::free(ptr);
     }
 
     static void
     deallocate_array(void* ptr, std::size_t count, std::size_t size, std::size_t alignment)
     {
-        fmt::print("malloc_allocator::deallocate_array({}, {}, {}, {})\n", ptr, count, size,
+        fmt::print("printing_allocator::deallocate_array({}, {}, {}, {})\n", ptr, count, size,
                 alignment);
         std::free(ptr);
     }
@@ -58,21 +58,21 @@ struct malloc_allocator
     static std::size_t
     max_alignment()
     {
-        fmt::print("malloc_allocator::max_alignment()\n");
+        fmt::print("printing_allocator::max_alignment()\n");
         return alignment;
     }
 
     static std::size_t
     max_node_size()
     {
-        fmt::print("malloc_allocator::max_node_size()\n");
+        fmt::print("printing_allocator::max_node_size()\n");
         return node_size;
     }
 
     static std::size_t
     max_array_size()
     {
-        fmt::print("malloc_allocator::max_array_size()\n");
+        fmt::print("printing_allocator::max_array_size()\n");
         return node_size * 10;
     }
 };
@@ -96,8 +96,8 @@ TEST_CASE("allocator_traits", "[allocator_traits]")
 
     SECTION("malloc")
     {
-        malloc_allocator alloc;
-        allocator_traits<malloc_allocator> ac;
+        printing_allocator alloc;
+        allocator_traits<printing_allocator> ac;
 
         void* node_ptr = ac.allocate_node(alloc, 32, 8);
         REQUIRE(node_ptr != nullptr);

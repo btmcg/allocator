@@ -22,7 +22,7 @@
 class memory_pool
 {
 public:
-    using allocator_type = growing_block_allocator<lowlevel_allocator<heap_allocator>>;
+    using allocator_type = growing_block_allocator<lowlevel_allocator<malloc_allocator>>;
 
     static constexpr std::size_t min_node_size = free_list::min_element_size;
 

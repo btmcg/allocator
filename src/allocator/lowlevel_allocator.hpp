@@ -61,13 +61,13 @@ public:
 /// It uses the two functions \ref heap_alloc and \ref heap_dealloc for the allocation,
 /// which default to \c std::malloc and \c std::free.
 /// \ingroup memory allocator
-struct heap_allocator
+struct malloc_allocator
 {
     static void*
     allocate(std::size_t size, std::size_t /*alignment*/) noexcept
     {
         /// Allocates heap memory.
-        /// This function is used by the \ref heap_allocator to allocate the heap memory.
+        /// This function is used by the \ref malloc_allocator to allocate the heap memory.
         /// It is not defined on a freestanding implementation, a definition must be provided by the
         /// library user. \requiredbe This function shall return a block of uninitialized memory
         /// that is aligned for \c max_align_t and has the given size. The size parameter will not
@@ -81,7 +81,7 @@ struct heap_allocator
     deallocate(void* ptr, std::size_t /*size*/, std::size_t /*alignment*/) noexcept
     {
         /// Deallocates heap memory.
-        /// This function is used by the \ref heap_allocator to allocate the heap memory.
+        /// This function is used by the \ref malloc_allocator to allocate the heap memory.
         /// It is not defined on a freestanding implementation, a definition must be provided by the
         /// library user. \requiredbe This function gets a pointer from a previous call to \ref
         /// heap_alloc with the same size. It shall free the memory. The pointer will not be zero.
