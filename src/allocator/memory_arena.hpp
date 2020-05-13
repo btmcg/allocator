@@ -43,19 +43,20 @@ struct memory_block
 
 
 /// A \concept{concept_blockallocator,BlockAllocator} that uses a given
-/// \concept{concept_rawallocator,RawAllocator} for allocating the blocks. It calls the \c
-/// allocate_array() function with a node of size \c 1 and maximum alignment on the used allocator
-/// for the block allocation. The size of the next memory block will grow by a given factor after
-/// each allocation, allowing an amortized constant allocation time in the higher level allocator.
-/// The factor can be given as rational in the template parameter, default is \c 2.
-/// \ingroup memory adapter
-template <class RawAllocator = lowlevel_allocator<malloc_allocator>, unsigned Num = 2,
+/// lowlevel_allocator for allocating the blocks. It calls the \c
+/// allocate_array() function with a node of size \c 1 and maximum
+/// alignment on the used allocator for the block allocation. The size
+/// of the next memory block will grow by a given factor after each
+/// allocation, allowing an amortized constant allocation time in the
+/// higher level allocator. The factor can be given as rational in the
+/// template parameter, default is \c 2.
+template <class LLAllocator = lowlevel_allocator<malloc_allocator>, unsigned Num = 2,
         unsigned Den = 1>
-class growing_block_allocator : allocator_traits<RawAllocator>::allocator_type
+class growing_block_allocator : allocator_traits<LLAllocator>::allocator_type
 {
     static_assert(float(Num) / Den >= 1.0, "invalid growth factor");
 
-    using traits = allocator_traits<RawAllocator>;
+    using traits = allocator_traits<LLAllocator>;
 
 public:
     using allocator_type = typename traits::allocator_type;
@@ -72,7 +73,6 @@ public:
     /// \effects Allocates a new memory block and increases the block size for the next allocation.
     /// \returns The new \ref memory_block.
     /// \throws Anything thrown by the \c allocate_array() function of the
-    /// \concept{concept_rawallocator,RawAllocator}.
     memory_block
     allocate_block()
     {
@@ -100,7 +100,7 @@ public:
         return block_size_;
     }
 
-    /// \returns A reference to the used \concept{concept_rawallocator,RawAllocator} object.
+    /// \returns A reference to the used LLAllocator object.
     allocator_type&
     get_allocator() noexcept
     {

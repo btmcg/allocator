@@ -28,6 +28,7 @@ namespace {
     {
         return size >= max_alignment ? max_alignment : (std::size_t(1) << ilog2(size));
     }
+
     // sets stored integer value
     inline void
     set_int(void* address, std::uintptr_t i) noexcept
