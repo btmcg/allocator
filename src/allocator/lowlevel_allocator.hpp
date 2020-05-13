@@ -109,13 +109,13 @@ struct new_allocator
     [[nodiscard]] static void*
     allocate(std::size_t size, std::size_t alignment = 8) noexcept
     {
-        return ::operator new(size, static_cast<std::align_val_t>(alignment));
+        return ::operator new(size, static_cast<std::align_val_t>(alignment), std::nothrow);
     }
 
     static void
     deallocate(void* ptr, std::size_t /*size*/, std::size_t alignment) noexcept
     {
-        ::operator delete(ptr, static_cast<std::align_val_t>(alignment));
+        ::operator delete(ptr, static_cast<std::align_val_t>(alignment), std::nothrow);
     }
 
     static std::size_t
