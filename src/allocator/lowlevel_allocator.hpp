@@ -64,10 +64,6 @@ public:
     }
 };
 
-/// A stateless \concept{concept_rawallocator,RawAllocator} that allocates memory from the heap.
-/// It uses the two functions \ref heap_alloc and \ref heap_dealloc for the allocation,
-/// which default to \c std::malloc and \c std::free.
-/// \ingroup memory allocator
 struct malloc_allocator
 {
     [[nodiscard]] static void*
