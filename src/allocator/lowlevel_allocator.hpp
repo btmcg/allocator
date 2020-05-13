@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstdlib> // std::aligned_alloc
 #include <memory>
 #include <new>
 
@@ -87,6 +88,48 @@ struct malloc_allocator
         /// heap_alloc with the same size. It shall free the memory. The pointer will not be zero.
         /// It must be thread safe. \defaultbe On a hosted implementation this function uses OS
         /// specific facilities, \c std::free is used as fallback. \ingroup memory allocator
+        std::free(ptr);
+    }
+
+    static std::size_t
+    max_node_size() noexcept
+    {
+        return std::allocator_traits<std::allocator<char>>::max_size({});
+    }
+};
+
+struct new_allocator
+{
+    static void*
+    allocate(std::size_t size, std::size_t alignment) noexcept
+    {
+        return ::operator new(size, static_cast<std::align_val_t>(alignment));
+    }
+
+    static void
+    deallocate(void* ptr, std::size_t /*size*/, std::size_t alignment) noexcept
+    {
+        ::operator delete(ptr, static_cast<std::align_val_t>(alignment));
+    }
+
+    static std::size_t
+    max_node_size() noexcept
+    {
+        return std::allocator_traits<std::allocator<char>>::max_size({});
+    }
+};
+
+struct posix_allocator
+{
+    static void*
+    allocate(std::size_t size, std::size_t alignment) noexcept
+    {
+        return std::aligned_alloc(alignment, size);
+    }
+
+    static void
+    deallocate(void* ptr, std::size_t /*size*/, std::size_t /*alignment*/) noexcept
+    {
         std::free(ptr);
     }
 
