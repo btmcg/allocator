@@ -1,4 +1,4 @@
-#include "allocator/heap_allocator.hpp"
+#include "allocator/lowlevel_allocator.hpp"
 #include "allocator/memory_arena.hpp"
 #include <catch2/catch.hpp>
 #include <fmt/format.h>
