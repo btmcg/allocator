@@ -3,6 +3,7 @@
 #include "allocator_traits.hpp"
 #include "lowlevel_allocator.hpp"
 #include "common/assert.hpp"
+#include <cstdint>
 #include <utility>
 
 
@@ -33,8 +34,7 @@ struct memory_block
 /// allocation, allowing an amortized constant allocation time in the
 /// higher level allocator. The factor can be given as rational in the
 /// template parameter, default is \c 2.
-template <class LLAllocator = lowlevel_allocator<malloc_allocator>, unsigned Num = 2,
-        unsigned Den = 1>
+template <class LLAllocator = lowlevel_allocator<malloc_allocator>, std::uint16_t Num = 2, std::uint16_t Den = 1>
 class growing_block_allocator : allocator_traits<LLAllocator>::allocator_type
 {
     static_assert(float(Num) / Den >= 1.0, "invalid growth factor");
@@ -51,7 +51,9 @@ public:
             std::size_t block_size, allocator_type alloc = allocator_type()) noexcept
             : allocator_type(std::move(alloc))
             , block_size_(block_size)
-    {}
+    {
+        // empty
+    }
 
     /// \effects Allocates a new memory block and increases the block size for the next allocation.
     /// \returns The new \ref memory_block.
@@ -128,9 +130,6 @@ public:
 
     // pops a memory block and returns the original block
     allocated_mb pop() noexcept;
-
-    // steals the top block from another stack
-    void steal_top(memory_block_stack& other) noexcept;
 
     // returns the last pushed() inserted memory block
     inserted_mb top() const noexcept;

@@ -111,17 +111,6 @@ memory_block_stack::pop() noexcept
     return {to_pop, to_pop->usable_size + node::offset};
 }
 
-void
-memory_block_stack::steal_top(memory_block_stack& other) noexcept
-{
-    DEBUG_ASSERT(other.head_);
-    auto to_steal = other.head_;
-    other.head_ = other.head_->prev;
-
-    to_steal->prev = head_;
-    head_ = to_steal;
-}
-
 bool
 memory_block_stack::owns(const void* ptr) const noexcept
 {
