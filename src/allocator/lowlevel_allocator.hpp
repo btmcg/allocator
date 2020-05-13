@@ -28,7 +28,7 @@ public:
         return *this;
     }
 
-    void*
+    [[nodiscard]] void*
     allocate_node(std::size_t size, std::size_t alignment)
     {
         auto actual_size = size;
@@ -64,7 +64,7 @@ public:
 /// \ingroup memory allocator
 struct malloc_allocator
 {
-    static void*
+    [[nodiscard]] static void*
     allocate(std::size_t size, std::size_t /*alignment*/) noexcept
     {
         /// Allocates heap memory.
@@ -100,7 +100,7 @@ struct malloc_allocator
 
 struct new_allocator
 {
-    static void*
+    [[nodiscard]] static void*
     allocate(std::size_t size, std::size_t alignment) noexcept
     {
         return ::operator new(size, static_cast<std::align_val_t>(alignment));
@@ -121,7 +121,7 @@ struct new_allocator
 
 struct posix_allocator
 {
-    static void*
+    [[nodiscard]] static void*
     allocate(std::size_t size, std::size_t alignment) noexcept
     {
         return std::aligned_alloc(alignment, size);
