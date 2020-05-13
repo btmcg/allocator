@@ -69,12 +69,12 @@ TEST_CASE("growing_block_allocator", "[growing_block_allocator]")
         growing_block_allocator<> gba1(4096);
         REQUIRE(gba1.growth_factor() == Approx(2.0));
         REQUIRE(gba1.next_block_size() == 4096);
-        lowlevel_allocator<detail::heap_allocator_impl>& ref = gba1.get_allocator();
+        lowlevel_allocator<heap_allocator>& ref = gba1.get_allocator();
         void* ptr = ref.allocate_node(128, 8);
         REQUIRE(ptr != nullptr);
         ref.deallocate_node(ptr, 128, 8);
 
-        growing_block_allocator<heap_allocator, 3, 2> gba2(1024);
+        growing_block_allocator<lowlevel_allocator<heap_allocator>, 3, 2> gba2(1024);
         REQUIRE(gba2.growth_factor() == Approx(1.5));
         REQUIRE(gba2.next_block_size() == 1024);
     }

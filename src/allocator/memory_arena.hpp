@@ -49,7 +49,8 @@ struct memory_block
 /// each allocation, allowing an amortized constant allocation time in the higher level allocator.
 /// The factor can be given as rational in the template parameter, default is \c 2.
 /// \ingroup memory adapter
-template <class RawAllocator = heap_allocator, unsigned Num = 2, unsigned Den = 1>
+template <class RawAllocator = lowlevel_allocator<heap_allocator>, unsigned Num = 2,
+        unsigned Den = 1>
 class growing_block_allocator : allocator_traits<RawAllocator>::allocator_type
 {
     static_assert(float(Num) / Den >= 1.0, "invalid growth factor");
