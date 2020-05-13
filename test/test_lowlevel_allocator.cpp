@@ -184,4 +184,22 @@ TEST_CASE("posix_allocator", "[posix_allocator]")
         REQUIRE(lla2.max_node_size() == 0xffffffffffffffff);
 #endif
     }
+
+    SECTION("allocate non-multiple of 8")
+    {
+        lowlevel_allocator<posix_allocator> lla;
+        void* ptr = lla.allocate_node(1, 8);
+        REQUIRE(ptr != nullptr);
+
+        ptr = lla.allocate_node(3, 8);
+        REQUIRE(ptr != nullptr);
+
+        ptr = lla.allocate_node(14, 8);
+        REQUIRE(ptr != nullptr);
+        ptr = lla.allocate_node(31, 8);
+        REQUIRE(ptr != nullptr);
+
+        // REQUIRE_THROWS_AS(lla.allocate_node(14, 8), bad_allocation);
+        // REQUIRE_THROWS_AS(lla.allocate_node(31, 8), bad_allocation);
+    }
 }

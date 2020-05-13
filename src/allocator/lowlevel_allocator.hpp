@@ -1,9 +1,29 @@
 #pragma once
 
 #include "common/assert.hpp"
+#include <fmt/format.h>
+#include <cerrno>
 #include <cstdlib> // std::aligned_alloc
 #include <memory>
 #include <new>
+
+
+class bad_allocation : public std::bad_alloc
+{
+public:
+    bad_allocation(std::size_t size, std::size_t alignment) noexcept
+    {
+        fmt::print(stderr,
+                "lowlevel_allocator bad allocation: size={}, alignment={}, errno={}, strerror={}\n",
+                size, alignment, errno, std::strerror(errno));
+    }
+
+    char const*
+    what() const noexcept override
+    {
+        return "lowlevel_allocator bad allocation";
+    }
+};
 
 
 // Functor controls low-level allocation:
@@ -36,7 +56,7 @@ public:
 
         auto memory = Functor::allocate(actual_size, alignment);
         if (!memory) {
-            throw std::bad_alloc();
+            throw bad_allocation(actual_size, alignment);
             // FOONATHAN_THROW(out_of_memory(Functor::info(), actual_size));
         }
 
