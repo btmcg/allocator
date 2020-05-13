@@ -1,5 +1,6 @@
 #pragma once
 
+#include "common/assert.hpp"
 #include <cstdlib> // std::aligned_alloc
 #include <memory>
 #include <new>
@@ -65,29 +66,14 @@ public:
 struct malloc_allocator
 {
     [[nodiscard]] static void*
-    allocate(std::size_t size, std::size_t /*alignment*/) noexcept
+    allocate(std::size_t size, std::size_t /*alignment = 8*/) noexcept
     {
-        /// Allocates heap memory.
-        /// This function is used by the \ref malloc_allocator to allocate the heap memory.
-        /// It is not defined on a freestanding implementation, a definition must be provided by the
-        /// library user. \requiredbe This function shall return a block of uninitialized memory
-        /// that is aligned for \c max_align_t and has the given size. The size parameter will not
-        /// be zero. It shall return a \c nullptr if no memory is available. It must be thread safe.
-        /// \defaultbe On a hosted implementation this function uses OS specific facilities, \c
-        /// std::malloc is used as fallback. \ingroup memory allocator
         return std::malloc(size);
     }
 
     static void
     deallocate(void* ptr, std::size_t /*size*/, std::size_t /*alignment*/) noexcept
     {
-        /// Deallocates heap memory.
-        /// This function is used by the \ref malloc_allocator to allocate the heap memory.
-        /// It is not defined on a freestanding implementation, a definition must be provided by the
-        /// library user. \requiredbe This function gets a pointer from a previous call to \ref
-        /// heap_alloc with the same size. It shall free the memory. The pointer will not be zero.
-        /// It must be thread safe. \defaultbe On a hosted implementation this function uses OS
-        /// specific facilities, \c std::free is used as fallback. \ingroup memory allocator
         std::free(ptr);
     }
 
@@ -101,7 +87,7 @@ struct malloc_allocator
 struct new_allocator
 {
     [[nodiscard]] static void*
-    allocate(std::size_t size, std::size_t alignment) noexcept
+    allocate(std::size_t size, std::size_t alignment = 8) noexcept
     {
         return ::operator new(size, static_cast<std::align_val_t>(alignment));
     }
@@ -122,8 +108,9 @@ struct new_allocator
 struct posix_allocator
 {
     [[nodiscard]] static void*
-    allocate(std::size_t size, std::size_t alignment) noexcept
+    allocate(std::size_t size, std::size_t alignment = 8) noexcept
     {
+        DEBUG_ASSERT(size % alignment == 0);
         return std::aligned_alloc(alignment, size);
     }
 
