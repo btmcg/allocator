@@ -11,34 +11,17 @@
 /// \ingroup memory core
 struct memory_block
 {
-    void* memory; ///< The address of the memory block (might be \c nullptr).
-    std::size_t size; ///< The size of the memory block (might be \c 0).
+    void* memory = nullptr; ///< The address of the memory block (might be \c nullptr).
+    std::size_t size = 0; ///< The size of the memory block (might be \c 0).
 
-    /// \effects Creates an invalid memory block with starting address \c nullptr and size \c 0.
-    memory_block() noexcept
-            : memory_block(nullptr, std::size_t(0))
-    {}
+    memory_block() noexcept;
+    memory_block(void* mem, std::size_t s) noexcept;
 
-    /// \effects Creates a memory block from a given starting address and size.
-    memory_block(void* mem, std::size_t s) noexcept
-            : memory(mem)
-            , size(s)
-    {}
-
-    /// \effects Creates a memory block from a [begin,end) range.
-    memory_block(void* begin, void* end) noexcept
-            : memory_block(begin,
-                    static_cast<std::size_t>(static_cast<char*>(end) - static_cast<char*>(begin)))
-    {}
+    /// Creates a memory block from a [begin,end) range.
+    memory_block(void* begin, void* end) noexcept;
 
     /// \returns Whether or not a pointer is inside the memory.
-    bool
-    contains(const void* address) const noexcept
-    {
-        auto mem = static_cast<const char*>(memory);
-        auto addr = static_cast<const char*>(address);
-        return addr >= mem && addr < mem + size;
-    }
+    bool contains(const void* address) const noexcept;
 };
 
 
@@ -116,7 +99,7 @@ public:
     }
 
 private:
-    std::size_t block_size_;
+    std::size_t block_size_ = 0;
 };
 
 /**********************************************************************/
@@ -161,20 +144,17 @@ public:
 private:
     struct node
     {
-        node* prev;
-        std::size_t usable_size;
+        node* prev = nullptr;
+        std::size_t usable_size = 0;
 
-        node(node* p, std::size_t size) noexcept
-                : prev(p)
-                , usable_size(size)
-        {}
+        node(node* p, std::size_t size) noexcept;
 
         static const std::size_t div_alignment;
         static const std::size_t mod_offset;
         static const std::size_t offset;
     };
 
-    node* head_;
+    node* head_ = nullptr;
 };
 
 

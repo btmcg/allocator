@@ -18,8 +18,37 @@ is_aligned(void* ptr, std::size_t alignment) noexcept
     return address % alignment == 0u;
 }
 
-
 constexpr std::size_t max_alignment = alignof(std::max_align_t);
+
+/**********************************************************************/
+
+memory_block::memory_block() noexcept
+        : memory(nullptr)
+        , size(0)
+{
+    // empty
+}
+
+memory_block::memory_block(void* mem, std::size_t s) noexcept
+        : memory(mem)
+        , size(s)
+{
+    // empty
+}
+
+memory_block::memory_block(void* begin, void* end) noexcept
+        : memory_block(begin, static_cast<std::size_t>(static_cast<std::uint8_t*>(end) - static_cast<std::uint8_t*>(begin)))
+{
+    // empty
+}
+
+bool
+memory_block::contains(void const* address) const noexcept
+{
+    auto mem = static_cast<const char*>(memory);
+    auto addr = static_cast<const char*>(address);
+    return addr >= mem && addr < mem + size;
+}
 
 /**********************************************************************/
 
@@ -120,4 +149,11 @@ memory_block_stack::top() const noexcept
     DEBUG_ASSERT(head_);
     auto mem = static_cast<void*>(head_);
     return {static_cast<char*>(mem) + node::offset, head_->usable_size};
+}
+
+memory_block_stack::node::node(node* prv, std::size_t sz) noexcept
+        : prev(prv)
+        , usable_size(sz)
+{
+    // empty
 }
