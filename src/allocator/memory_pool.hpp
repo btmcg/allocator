@@ -55,21 +55,9 @@ public:
     }
 
     void*
-    try_allocate_node() noexcept
-    {
-        return free_list_.empty() ? nullptr : free_list_.allocate();
-    }
-
-    void*
     allocate_array(std::size_t n)
     {
         return allocate_array(n, node_size());
-    }
-
-    void*
-    try_allocate_array(std::size_t n) noexcept
-    {
-        return try_allocate_array(n, node_size());
     }
 
     void
@@ -78,23 +66,10 @@ public:
         free_list_.deallocate(ptr);
     }
 
-    bool
-    try_deallocate_node(void* ptr) noexcept
-    {
-        free_list_.deallocate(ptr);
-        return true;
-    }
-
     void
     deallocate_array(void* ptr, std::size_t n) noexcept
     {
         free_list_.deallocate(ptr, n * node_size());
-    }
-
-    bool
-    try_deallocate_array(void* ptr, std::size_t n) noexcept
-    {
-        return try_deallocate_array(ptr, n, node_size());
     }
 
     std::size_t
