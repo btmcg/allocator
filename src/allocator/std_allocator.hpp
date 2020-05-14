@@ -10,8 +10,6 @@
 template <typename T, class Allocator>
 class std_allocator : reference_storage
 {
-    using alloc_reference = reference_storage;
-
 public:
     //=== typedefs ===//
     using value_type = T;
@@ -32,24 +30,24 @@ public:
         using other = std_allocator<U, Allocator>;
     };
 
-    using allocator_type = typename alloc_reference::allocator_type;
+    using allocator_type = typename reference_storage::allocator_type;
 
     // std_allocator() noexcept
-    //         : alloc_reference(allocator_type{})
+    //         : reference_storage(allocator_type{})
     // {}
 
     template <class RawAlloc>
-    std_allocator(RawAlloc& alloc, decltype(alloc_reference(alloc), int()) = 0) noexcept
-            : alloc_reference(alloc)
+    std_allocator(RawAlloc& alloc, decltype(reference_storage(alloc), int()) = 0) noexcept
+            : reference_storage(alloc)
     {}
 
     template <class RawAlloc>
-    std_allocator(const RawAlloc& alloc, decltype(alloc_reference(alloc))) noexcept
-            : alloc_reference(alloc)
+    std_allocator(const RawAlloc& alloc, decltype(reference_storage(alloc))) noexcept
+            : reference_storage(alloc)
     {}
 
-    std_allocator(const alloc_reference& alloc) noexcept
-            : alloc_reference(alloc)
+    std_allocator(const reference_storage& alloc) noexcept
+            : reference_storage(alloc)
     {}
 
     template <class StoragePolicy>
@@ -57,12 +55,12 @@ public:
 
     template <typename U>
     std_allocator(const std_allocator<U, Allocator>& alloc) noexcept
-            : alloc_reference(alloc)
+            : reference_storage(alloc)
     {}
 
     template <typename U>
     std_allocator(std_allocator<U, Allocator>& alloc) noexcept
-            : alloc_reference(alloc)
+            : reference_storage(alloc)
     {}
 
     std_allocator<T, Allocator>
@@ -105,16 +103,16 @@ public:
     }
 
     auto
-    get_allocator() noexcept -> decltype(std::declval<alloc_reference>().get_allocator())
+    get_allocator() noexcept -> decltype(std::declval<reference_storage>().get_allocator())
     {
-        return alloc_reference::get_allocator();
+        return reference_storage::get_allocator();
     }
 
     auto
     get_allocator() const noexcept
-            -> decltype(std::declval<const alloc_reference>().get_allocator())
+            -> decltype(std::declval<const reference_storage>().get_allocator())
     {
-        return alloc_reference::get_allocator();
+        return reference_storage::get_allocator();
     }
 
 private:
