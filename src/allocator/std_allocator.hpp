@@ -7,9 +7,6 @@
 #include <utility> // std::forward
 
 
-/// Wraps a \concept{concept_rawallocator,RawAllocator} and makes it a "normal" \c Allocator.
-/// It allows using a \c RawAllocator anywhere a \c Allocator is required.
-/// \ingroup memory adapter
 template <typename T, class RawAllocator>
 class std_allocator : reference_storage
 {
@@ -37,51 +34,27 @@ public:
 
     using allocator_type = typename alloc_reference::allocator_type;
 
-    //=== constructor ===//
-    /// \effects Default constructs it by storing a default constructed, stateless \c RawAllocator
-    /// inside the reference. \requires The \c RawAllocator type is stateless, otherwise the body of
-    /// this function will not compile.
     // std_allocator() noexcept
     //         : alloc_reference(allocator_type{})
     // {}
 
-    /// \effects Creates it from a reference to a \c RawAllocator.
-    /// It will store an \ref allocator_reference to it.
-    /// \requires The expression <tt>allocator_reference<RawAllocator>(alloc)</tt> is well-formed,
-    /// that is either \c RawAlloc is the same as \c RawAllocator or \c RawAllocator is the tag type
-    /// \ref any_allocator. If the requirement is not fulfilled this function does not participate
-    /// in overload resolution. \note The caller has to ensure that the lifetime of the \c
-    /// RawAllocator is at least as long as the lifetime of this \ref std_allocator object.
     template <class RawAlloc>
     std_allocator(RawAlloc& alloc, decltype(alloc_reference(alloc), int()) = 0) noexcept
             : alloc_reference(alloc)
     {}
 
-    /// \effects Creates it from a stateless, temporary \c RawAllocator object.
-    /// It will not store a reference but create it on the fly.
-    /// \requires The \c RawAllocator is stateless
-    /// and the expression <tt>allocator_reference<RawAllocator>(alloc)</tt> is well-formed as
-    /// above, otherwise this function does not participate in overload resolution.
     template <class RawAlloc>
     std_allocator(const RawAlloc& alloc, decltype(alloc_reference(alloc))) noexcept
             : alloc_reference(alloc)
     {}
 
-    /// \effects Creates it from another \ref allocator_reference using the same allocator type.
     std_allocator(const alloc_reference& alloc) noexcept
             : alloc_reference(alloc)
     {}
 
-    /// \details Implicit conversion from any other \ref allocator_storage is forbidden
-    /// to prevent accidentally wrapping another \ref allocator_storage inside a \ref
-    /// allocator_reference.
     template <class StoragePolicy>
     std_allocator(const allocator_storage<StoragePolicy>&) = delete;
 
-    /// @{
-    /// \effects Creates it from another \ref std_allocator allocating a different type.
-    /// This is required by the \c Allcoator concept and simply takes the same \ref
-    /// allocator_reference.
     template <typename U>
     std_allocator(const std_allocator<U, RawAllocator>& alloc) noexcept
             : alloc_reference(alloc)
@@ -91,40 +64,25 @@ public:
     std_allocator(std_allocator<U, RawAllocator>& alloc) noexcept
             : alloc_reference(alloc)
     {}
-    /// @}
 
-    /// \returns A copy of the allocator.
-    /// This is required by the \c Allocator concept and forwards to the \ref propagation_traits.
     std_allocator<T, RawAllocator>
     select_on_container_copy_construction() const
     {
         return *this;
     }
 
-    //=== allocation/deallocation ===//
-    /// \effects Allocates memory using the underlying \concept{concept_rawallocator,RawAllocator}.
-    /// If \c n is \c 1, it will call <tt>allocate_node(sizeof(T), alignof(T))</tt>,
-    /// otherwise <tt>allocate_array(n, sizeof(T), alignof(T))</tt>.
-    /// \returns A pointer to a memory block suitable for \c n objects of type \c T.
-    /// \throws Anything thrown by the \c RawAllocator.
     pointer
     allocate(size_type n, void* = nullptr)
     {
         return static_cast<pointer>(allocate_impl(n));
     }
 
-    /// \effects Deallcoates memory using the underlying
-    /// \concept{concept_rawallocator,RawAllocator}. It will forward to the deallocation function in
-    /// the same way as in \ref allocate(). \requires The pointer must come from a previous call to
-    /// \ref allocate() with the same \c n on this object or any copy of it.
     void
     deallocate(pointer p, size_type n) noexcept
     {
         deallocate_impl(p, n);
     }
 
-    //=== construction/destruction ===//
-    /// \effects Creates an object of type \c U at given address using the passed arguments.
     template <typename U, typename... Args>
     void
     construct(U* p, Args&&... args)
@@ -133,7 +91,6 @@ public:
         ::new (mem) U(std::forward<Args>(args)...);
     }
 
-    /// \effects Calls the destructor for an object of type \c U at given address.
     template <typename U>
     void
     destroy(U* p) noexcept
@@ -141,19 +98,12 @@ public:
         p->~U();
     }
 
-    //=== getter ===//
-    /// \returns The maximum size for an allocation which is <tt>max_array_size() /
-    /// sizeof(value_type)</tt>. This is only an upper bound, not the exact maximum.
     size_type
     max_size() const noexcept
     {
         return this->max_array_size() / sizeof(value_type);
     }
 
-    /// @{
-    /// \effects Returns a reference to the referenced allocator.
-    /// \returns For stateful allocators: A (\c const) reference to the stored allocator.
-    /// For stateless allocators: A temporary constructed allocator.
     auto
     get_allocator() noexcept -> decltype(std::declval<alloc_reference>().get_allocator())
     {
@@ -166,10 +116,8 @@ public:
     {
         return alloc_reference::get_allocator();
     }
-    /// @}
 
 private:
-    // any_allocator_reference: use virtual function which already does a dispatch on node/array
     void*
     allocate_impl(size_type n)
     {
@@ -177,14 +125,6 @@ private:
             return get_allocator().allocate_node();
         else
             return get_allocator().allocate_array(n);
-
-
-        // if (n == 1)
-        //     return get_allocator().allocate_node(sizeof(T), alignof(T));
-        // else
-        //     return get_allocator().allocate_array(n, sizeof(T), alignof(T));
-
-        // return get_allocator().allocate_node();
     }
 
     void
@@ -194,13 +134,6 @@ private:
             get_allocator().deallocate_node(ptr);
         else
             get_allocator().deallocate_array(ptr, n);
-
-        // if (n == 1)
-        //     get_allocator().deallocate_node(ptr, sizeof(T), alignof(T));
-        // else
-        //     get_allocator().deallocate_array(ptr, n, sizeof(T), alignof(T));
-
-        // get_allocator().deallocate_node(ptr);
     }
 
     template <typename U> // stateful
@@ -219,8 +152,6 @@ private:
 };
 
 
-/// \effects Compares two \ref std_allocator object, they are equal if either stateless or reference
-/// the same allocator. \returns The result of the comparision for equality. \relates std_allocator
 template <typename T, typename U, class Impl>
 bool
 operator==(const std_allocator<T, Impl>& lhs, const std_allocator<U, Impl>& rhs) noexcept
@@ -228,9 +159,6 @@ operator==(const std_allocator<T, Impl>& lhs, const std_allocator<U, Impl>& rhs)
     return lhs.equal_to_impl(rhs);
 }
 
-/// \effects Compares two \ref std_allocator object, they are equal if either stateless or reference
-/// the same allocator. \returns The result of the comparision for inequality. \relates
-/// std_allocator
 template <typename T, typename U, class Impl>
 bool
 operator!=(const std_allocator<T, Impl>& lhs, const std_allocator<U, Impl>& rhs) noexcept

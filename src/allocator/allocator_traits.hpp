@@ -4,27 +4,12 @@
 #include <cstddef> // std::max_align_t
 #include <type_traits>
 
-/*
-// same as above, but requires certain type
-#define FOONATHAN_AUTO_RETURN_TYPE(Expr, T)                   \
-    decltype(Expr)                                            \
-    {                                                         \
-        static_assert(std::is_same<decltype(Expr), T>::value, \
-                #Expr " does not have the return type " #T);  \
-        return Expr;                                          \
-    }
-// avoids code repetition for one-line forwarding functions
-#define FOONATHAN_AUTO_RETURN(Expr) \
-    decltype(Expr)                  \
-    {                               \
-        return Expr;                \
-    }
-*/
+
 namespace detail {
     constexpr std::size_t max_alignment = alignof(std::max_align_t);
 }
 
-namespace traits_detail // use seperate namespace to avoid name clashes
+namespace traits_detail
 {
     // full_concept has the best conversion rank, error the lowest
     // used to give priority to the functions
@@ -98,10 +83,7 @@ namespace traits_detail // use seperate namespace to avoid name clashes
     struct is_stateful_impl<Allocator, true>
     {
         static_assert(std::is_default_constructible<Allocator>::value,
-                "RawAllocator is empty but not default constructible ."
-                "This means it is not a stateless allocator. "
-                "If this is actually intended provide the appropriate is_stateful "
-                "typedef in your class.");
+                "RawAllocator is empty but not default constructible. This means it is not a stateless allocator. If this is actually intended provide the appropriate is_stateful typedef in your class.");
         using type = std::false_type;
     };
 
@@ -115,40 +97,13 @@ namespace traits_detail // use seperate namespace to avoid name clashes
     auto is_stateful(min_concept) ->
             typename is_stateful_impl<Allocator, std::is_empty<Allocator>::value>::type;
 
-    //=== allocate_node() ===//
-    // first try Allocator::allocate_node
-    // then assume std_allocator and call Allocator::allocate
-    // then error
-    // template <class Allocator>
-    // auto
-    // allocate_node(full_concept, Allocator& alloc, std::size_t size, std::size_t alignment)
-    //         -> FOONATHAN_AUTO_RETURN_TYPE(alloc.allocate_node(size, alignment), void*)
-
-    //                 template <class Allocator>
-    //                 auto allocate_node(std_concept, Allocator& alloc, std::size_t size,
-    //                 std::size_t)
-    //                         -> FOONATHAN_AUTO_RETURN(static_cast<void*>(alloc.allocate(size)))
-
-    //                                 template <class Allocator>
-    //                                 error allocate_node(error, Allocator&, std::size_t,
-    //                                 std::size_t)
-    // {
-    //     static_assert(invalid_allocator_concept<Allocator>::error,
-    //             "type is not a RawAllocator as it does not provide: void* "
-    //             "allocate_node(std::size_t, "
-    //             "std::size_t)");
-    //     return {};
-    // }
-
     template <class Allocator>
     auto
     allocate_node(full_concept, Allocator& alloc, std::size_t size, std::size_t alignment)
             -> decltype(alloc.allocate_node(size, alignment))
     {
         static_assert(std::is_same<decltype(alloc.allocate_node(size, alignment)), void*>::value,
-                "alloc.allocate_node(size, alignment)"
-                " does not have the return type "
-                "void*");
+                "alloc.allocate_node(size, alignment) does not have the return type void*");
         return alloc.allocate_node(size, alignment);
     }
 
@@ -165,37 +120,10 @@ namespace traits_detail // use seperate namespace to avoid name clashes
     allocate_node(error, Allocator&, std::size_t, std::size_t)
     {
         static_assert(invalid_allocator_concept<Allocator>::error,
-                "type is not a RawAllocator as it does not provide: void* "
-                "allocate_node(std::size_t, "
-                "std::size_t)");
+                "type is not a RawAllocator as it does not provide: void* allocate_node(std::size_t, std::size_t)");
         return {};
     }
 
-    //=== deallocate_node() ===//
-    // first try Allocator::deallocate_node
-    // then assume std_allocator and call Allocator::deallocate
-    // then error
-    // template <class Allocator>
-    // auto
-    // deallocate_node(full_concept, Allocator& alloc, void* ptr, std::size_t size,
-    //         std::size_t alignment) noexcept
-    //         -> FOONATHAN_AUTO_RETURN_TYPE(alloc.deallocate_node(ptr, size, alignment), void)
-
-    //                 template <class Allocator>
-    //                 auto deallocate_node(std_concept, Allocator& alloc, void* ptr, std::size_t
-    //                 size,
-    //                         std::size_t) noexcept
-    //         -> FOONATHAN_AUTO_RETURN_TYPE(alloc.deallocate(static_cast<char*>(ptr), size), void)
-
-    //                 template <class Allocator>
-    //                 error deallocate_node(error, Allocator&, void*, std::size_t, std::size_t)
-    // {
-    //     static_assert(invalid_allocator_concept<Allocator>::error,
-    //             "type is not a RawAllocator as it does not provide: void "
-    //             "deallocate_node(void*, std::size_t, "
-    //             "std::size_t)");
-    //     return error{};
-    // }
     template <class Allocator>
     auto
     deallocate_node(full_concept, Allocator& alloc, void* ptr, std::size_t size,
@@ -203,9 +131,7 @@ namespace traits_detail // use seperate namespace to avoid name clashes
     {
         static_assert(
                 std::is_same<decltype(alloc.deallocate_node(ptr, size, alignment)), void>::value,
-                "alloc.deallocate_node(ptr, size, alignment)"
-                " does not have the return type "
-                "void");
+                "alloc.deallocate_node(ptr, size, alignment) does not have the return type void");
         return alloc.deallocate_node(ptr, size, alignment);
     }
 
@@ -216,9 +142,7 @@ namespace traits_detail // use seperate namespace to avoid name clashes
     {
         static_assert(std::is_same<decltype(alloc.deallocate(static_cast<char*>(ptr), size)),
                               void>::value,
-                "alloc.deallocate(static_cast<char*>(ptr), size)"
-                " does not have the return type "
-                "void");
+                "alloc.deallocate(static_cast<char*>(ptr), size) does not have the return type void");
         return alloc.deallocate(static_cast<char*>(ptr), size);
     }
 
@@ -227,27 +151,10 @@ namespace traits_detail // use seperate namespace to avoid name clashes
     deallocate_node(error, Allocator&, void*, std::size_t, std::size_t)
     {
         static_assert(invalid_allocator_concept<Allocator>::error,
-                "type is not a RawAllocator as it does not provide: void "
-                "deallocate_node(void*, std::size_t, "
-                "std::size_t)");
+                "type is not a RawAllocator as it does not provide: void deallocate_node(void*, std::size_t, std::size_t)");
         return error{};
     }
 
-    //=== allocate_array() ===//
-    // first try Allocator::allocate_array
-    // then forward to allocate_node()
-    // template <class Allocator>
-    // auto
-    // allocate_array(full_concept, Allocator& alloc, std::size_t count, std::size_t size,
-    //         std::size_t alignment)
-    //         -> FOONATHAN_AUTO_RETURN_TYPE(alloc.allocate_array(count, size, alignment), void*)
-
-    //                 template <class Allocator>
-    //                 void* allocate_array(min_concept, Allocator& alloc, std::size_t count,
-    //                         std::size_t size, std::size_t alignment)
-    // {
-    //     return allocate_node(full_concept{}, alloc, count * size, alignment);
-    // }
     template <class Allocator>
     auto
     allocate_array(full_concept, Allocator& alloc, std::size_t count, std::size_t size,
@@ -255,9 +162,7 @@ namespace traits_detail // use seperate namespace to avoid name clashes
     {
         static_assert(
                 std::is_same<decltype(alloc.allocate_array(count, size, alignment)), void*>::value,
-                "alloc.allocate_array(count, size, alignment)"
-                " does not have the return type "
-                "void*");
+                "alloc.allocate_array(count, size, alignment) does not have the return type void*");
         return alloc.allocate_array(count, size, alignment);
     }
 
@@ -269,23 +174,6 @@ namespace traits_detail // use seperate namespace to avoid name clashes
         return allocate_node(full_concept{}, alloc, count * size, alignment);
     }
 
-    //=== deallocate_array() ===//
-    // first try Allocator::deallocate_array
-    // then forward to deallocate_node()
-    // template <class Allocator>
-    // auto
-    // deallocate_array(full_concept, Allocator& alloc, void* ptr, std::size_t count, std::size_t
-    // size,
-    //         std::size_t alignment) noexcept
-    //         -> FOONATHAN_AUTO_RETURN_TYPE(alloc.deallocate_array(ptr, count, size, alignment),
-    //         void)
-
-    //                 template <class Allocator>
-    //                 void deallocate_array(min_concept, Allocator& alloc, void* ptr,
-    //                         std::size_t count, std::size_t size, std::size_t alignment) noexcept
-    // {
-    //     deallocate_node(full_concept{}, alloc, ptr, count * size, alignment);
-    // }
     template <class Allocator>
     auto
     deallocate_array(full_concept, Allocator& alloc, void* ptr, std::size_t count, std::size_t size,
@@ -294,9 +182,7 @@ namespace traits_detail // use seperate namespace to avoid name clashes
     {
         static_assert(std::is_same<decltype(alloc.deallocate_array(ptr, count, size, alignment)),
                               void>::value,
-                "alloc.deallocate_array(ptr, count, size, alignment)"
-                " does not have the return type "
-                "void");
+                "alloc.deallocate_array(ptr, count, size, alignment) does not have the return type void");
         return alloc.deallocate_array(ptr, count, size, alignment);
     }
 
@@ -308,27 +194,12 @@ namespace traits_detail // use seperate namespace to avoid name clashes
         deallocate_node(full_concept{}, alloc, ptr, count * size, alignment);
     }
 
-    //=== max_node_size() ===//
-    // first try Allocator::max_node_size()
-    // then return maximum value
-    // template <class Allocator>
-    // auto
-    // max_node_size(full_concept, const Allocator& alloc)
-    //         -> FOONATHAN_AUTO_RETURN_TYPE(alloc.max_node_size(), std::size_t)
-
-    //                 template <class Allocator>
-    //                 std::size_t max_node_size(min_concept, const Allocator&) noexcept
-    // {
-    //     return std::size_t(-1);
-    // }
     template <class Allocator>
     auto
     max_node_size(full_concept, const Allocator& alloc) -> decltype(alloc.max_node_size())
     {
         static_assert(std::is_same<decltype(alloc.max_node_size()), std::size_t>::value,
-                "alloc.max_node_size()"
-                " does not have the return type "
-                "std::size_t");
+                "alloc.max_node_size() does not have the return type std::size_t");
         return alloc.max_node_size();
     }
 
@@ -339,27 +210,12 @@ namespace traits_detail // use seperate namespace to avoid name clashes
         return std::size_t(-1);
     }
 
-    //=== max_array_size() ===//
-    // first try Allocator::max_array_size()
-    // then forward to max_node_size()
-    // template <class Allocator>
-    // auto
-    // max_array_size(full_concept, const Allocator& alloc)
-    //         -> FOONATHAN_AUTO_RETURN_TYPE(alloc.max_array_size(), std::size_t)
-
-    //                 template <class Allocator>
-    //                 std::size_t max_array_size(min_concept, const Allocator& alloc)
-    // {
-    //     return max_node_size(full_concept{}, alloc);
-    // }
     template <class Allocator>
     auto
     max_array_size(full_concept, const Allocator& alloc) -> decltype(alloc.max_array_size())
     {
         static_assert(std::is_same<decltype(alloc.max_array_size()), std::size_t>::value,
-                "alloc.max_array_size()"
-                " does not have the return type "
-                "std::size_t");
+                "alloc.max_array_size() does not have the return type std::size_t");
         return alloc.max_array_size();
     }
 
@@ -370,27 +226,12 @@ namespace traits_detail // use seperate namespace to avoid name clashes
         return max_node_size(full_concept{}, alloc);
     }
 
-    //=== max_alignment() ===//
-    // first try Allocator::max_alignment()
-    // then return detail::max_alignment
-    // template <class Allocator>
-    // auto
-    // max_alignment(full_concept, const Allocator& alloc)
-    //         -> FOONATHAN_AUTO_RETURN_TYPE(alloc.max_alignment(), std::size_t)
-
-    //                 template <class Allocator>
-    //                 std::size_t max_alignment(min_concept, const Allocator&)
-    // {
-    //     return detail::max_alignment;
-    // }
     template <class Allocator>
     auto
     max_alignment(full_concept, const Allocator& alloc) -> decltype(alloc.max_alignment())
     {
         static_assert(std::is_same<decltype(alloc.max_alignment()), std::size_t>::value,
-                "alloc.max_alignment()"
-                " does not have the return type "
-                "std::size_t");
+                "alloc.max_alignment() does not have the return type std::size_t");
         return alloc.max_alignment();
     }
 
@@ -404,10 +245,6 @@ namespace traits_detail // use seperate namespace to avoid name clashes
 } // namespace traits_detail
 
 
-/// The default specialization of the allocator_traits for a
-/// \concept{concept_rawallocator,RawAllocator}. See the last link for the requirements on types
-/// that do not specialize this class and the interface documentation. Any specialization must
-/// provide the same interface. \ingroup memory core
 template <class Allocator>
 class allocator_traits
 {
