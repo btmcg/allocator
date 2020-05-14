@@ -160,8 +160,8 @@ public:
     }
 
     static void*
-    allocate_array(
-            allocator_type& state, std::size_t count, std::size_t size, std::size_t /*alignment*/)
+    allocate_array(allocator_type& state, std::size_t count, std::size_t size, std::size_t
+            /*alignment*/)
     {
         return state.allocate_array(count, size);
     }

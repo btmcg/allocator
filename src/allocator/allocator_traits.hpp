@@ -35,7 +35,7 @@ namespace traits_detail {
     // else if Allocator has a member `value_type`, rebind by changing argument
     // else does nothing
     template <class Allocator>
-    auto rebind_impl(int) -> typename Allocator::template rebind<char>::other&;
+    typename Allocator::template rebind<char>::other& rebind_impl(int);
 
     template <class Allocator, typename T>
     struct allocator_rebinder
@@ -51,25 +51,19 @@ namespace traits_detail {
     };
 
     template <class Allocator, typename = typename Allocator::value_type>
-    auto rebind_impl(char) -> typename allocator_rebinder<Allocator, char>::type;
+    typename allocator_rebinder<Allocator, char>::type rebind_impl(char);
 
     template <class Allocator>
-    auto rebind_impl(...) -> Allocator&;
+    Allocator& rebind_impl(...);
 
     template <class Allocator>
-    struct allocator_type_impl // required for MSVC
-    {
-        using type = decltype(rebind_impl<Allocator>(0));
-    };
-
-    template <class Allocator>
-    using allocator_type = typename std::decay<typename allocator_type_impl<Allocator>::type>::type;
+    using allocator_type = typename std::decay<Allocator>::type;
 
     //=== is_stateful ===//
     // first try to access Allocator::is_stateful,
     // then use whether or not the type is empty
     template <class Allocator>
-    auto is_stateful(full_concept) -> decltype(typename Allocator::is_stateful{});
+    decltype(typename Allocator::is_stateful{}) is_stateful(full_concept);
 
     template <class Allocator, bool IsEmpty>
     struct is_stateful_impl;
@@ -124,8 +118,7 @@ namespace traits_detail {
     deallocate_node(full_concept, Allocator& alloc, void* ptr, std::size_t size,
             std::size_t alignment) noexcept -> decltype(alloc.deallocate_node(ptr, size, alignment))
     {
-        static_assert(
-                std::is_same_v<decltype(alloc.deallocate_node(ptr, size, alignment)), void>,
+        static_assert(std::is_same_v<decltype(alloc.deallocate_node(ptr, size, alignment)), void>,
                 "alloc.deallocate_node(ptr, size, alignment) does not have the return type void");
         return alloc.deallocate_node(ptr, size, alignment);
     }
@@ -135,8 +128,8 @@ namespace traits_detail {
     deallocate_node(std_concept, Allocator& alloc, void* ptr, std::size_t size,
             std::size_t) noexcept -> decltype(alloc.deallocate(static_cast<char*>(ptr), size))
     {
-        static_assert(std::is_same_v<decltype(alloc.deallocate(static_cast<char*>(ptr), size)),
-                              void>,
+        static_assert(
+                std::is_same_v<decltype(alloc.deallocate(static_cast<char*>(ptr), size)), void>,
                 "alloc.deallocate(static_cast<char*>(ptr), size) does not have the return type void");
         return alloc.deallocate(static_cast<char*>(ptr), size);
     }
@@ -155,8 +148,7 @@ namespace traits_detail {
     allocate_array(full_concept, Allocator& alloc, std::size_t count, std::size_t size,
             std::size_t alignment) -> decltype(alloc.allocate_array(count, size, alignment))
     {
-        static_assert(
-                std::is_same_v<decltype(alloc.allocate_array(count, size, alignment)), void*>,
+        static_assert(std::is_same_v<decltype(alloc.allocate_array(count, size, alignment)), void*>,
                 "alloc.allocate_array(count, size, alignment) does not have the return type void*");
         return alloc.allocate_array(count, size, alignment);
     }
@@ -175,8 +167,8 @@ namespace traits_detail {
             std::size_t alignment) noexcept
             -> decltype(alloc.deallocate_array(ptr, count, size, alignment))
     {
-        static_assert(std::is_same_v<decltype(alloc.deallocate_array(ptr, count, size, alignment)),
-                              void>,
+        static_assert(
+                std::is_same_v<decltype(alloc.deallocate_array(ptr, count, size, alignment)), void>,
                 "alloc.deallocate_array(ptr, count, size, alignment) does not have the return type void");
         return alloc.deallocate_array(ptr, count, size, alignment);
     }
