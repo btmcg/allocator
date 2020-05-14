@@ -7,7 +7,7 @@
 #include <utility> // std::forward
 
 
-template <typename T, class RawAllocator>
+template <typename T, class Allocator>
 class std_allocator : reference_storage
 {
     using alloc_reference = reference_storage;
@@ -29,7 +29,7 @@ public:
     template <typename U>
     struct rebind
     {
-        using other = std_allocator<U, RawAllocator>;
+        using other = std_allocator<U, Allocator>;
     };
 
     using allocator_type = typename alloc_reference::allocator_type;
@@ -56,16 +56,16 @@ public:
     std_allocator(const allocator_storage<StoragePolicy>&) = delete;
 
     template <typename U>
-    std_allocator(const std_allocator<U, RawAllocator>& alloc) noexcept
+    std_allocator(const std_allocator<U, Allocator>& alloc) noexcept
             : alloc_reference(alloc)
     {}
 
     template <typename U>
-    std_allocator(std_allocator<U, RawAllocator>& alloc) noexcept
+    std_allocator(std_allocator<U, Allocator>& alloc) noexcept
             : alloc_reference(alloc)
     {}
 
-    std_allocator<T, RawAllocator>
+    std_allocator<T, Allocator>
     select_on_container_copy_construction() const
     {
         return *this;
@@ -138,7 +138,7 @@ private:
 
     template <typename U> // stateful
     bool
-    equal_to_impl(const std_allocator<U, RawAllocator>& other) const noexcept
+    equal_to_impl(const std_allocator<U, Allocator>& other) const noexcept
     {
         return &get_allocator() == &other.get_allocator();
     }
@@ -147,7 +147,7 @@ private:
     friend bool operator==(
             const std_allocator<T1, Impl>& lhs, const std_allocator<T2, Impl>& rhs) noexcept;
 
-    template <typename U, class OtherRawAllocator>
+    template <typename U, class OtherAllocator>
     friend class std_allocator;
 };
 

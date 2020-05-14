@@ -82,7 +82,7 @@ namespace traits_detail {
     struct is_stateful_impl<Allocator, true>
     {
         static_assert(std::is_default_constructible<Allocator>::value,
-                "RawAllocator is empty but not default constructible. This means it is not a stateless allocator. If this is actually intended provide the appropriate is_stateful typedef in your class.");
+                "Allocator is empty but not default constructible. This means it is not a stateless allocator. If this is actually intended provide the appropriate is_stateful typedef in your class.");
         using type = std::false_type;
     };
 
@@ -119,7 +119,7 @@ namespace traits_detail {
     allocate_node(error, Allocator&, std::size_t, std::size_t)
     {
         static_assert(invalid_allocator_concept<Allocator>::error,
-                "type is not a RawAllocator as it does not provide: void* allocate_node(std::size_t, std::size_t)");
+                "type is not a Allocator as it does not provide: void* allocate_node(std::size_t, std::size_t)");
         return {};
     }
 
@@ -150,7 +150,7 @@ namespace traits_detail {
     deallocate_node(error, Allocator&, void*, std::size_t, std::size_t)
     {
         static_assert(invalid_allocator_concept<Allocator>::error,
-                "type is not a RawAllocator as it does not provide: void deallocate_node(void*, std::size_t, std::size_t)");
+                "type is not a Allocator as it does not provide: void deallocate_node(void*, std::size_t, std::size_t)");
         return error{};
     }
 
