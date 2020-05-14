@@ -1,7 +1,5 @@
 #pragma once
 
-#include "allocator_storage.hpp"
-#include "memory_pool.hpp"
 #include "reference_storage.hpp"
 #include <type_traits> // std::true_type
 #include <utility> // std::forward
@@ -49,9 +47,6 @@ public:
     std_allocator(const reference_storage& alloc) noexcept
             : reference_storage(alloc)
     {}
-
-    template <class StoragePolicy>
-    std_allocator(const allocator_storage<StoragePolicy>&) = delete;
 
     template <typename U>
     std_allocator(const std_allocator<U, Allocator>& alloc) noexcept
