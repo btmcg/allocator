@@ -1,6 +1,5 @@
 #pragma once
 
-#include "allocator_traits.hpp"
 #include "lowlevel_allocator.hpp"
 #include "common/assert.hpp"
 #include <cstdint>
@@ -21,28 +20,16 @@ struct memory_block
 
 /**********************************************************************/
 
-/// A \concept{concept_blockallocator,BlockAllocator} that uses a given
-/// lowlevel_allocator for allocating the blocks. It calls the \c
-/// allocate_array() function with a node of size \c 1 and maximum
-/// alignment on the used allocator for the block allocation. The size
-/// of the next memory block will grow by a given factor after each
-/// allocation, allowing an amortized constant allocation time in the
-/// higher level allocator. The factor can be given as rational in the
-/// template parameter, default is \c 2.
 template <class LLAllocator = lowlevel_allocator<malloc_allocator>, std::uint16_t Num = 2,
         std::uint16_t Den = 1>
-class growing_block_allocator : allocator_traits<LLAllocator>::allocator_type
+class growing_block_allocator : LLAllocator
 {
     static_assert(float(Num) / Den >= 1.0, "invalid growth factor");
 
-    using traits = allocator_traits<LLAllocator>;
-
 public:
-    using allocator_type = typename traits::allocator_type;
-
     explicit growing_block_allocator(
-            std::size_t block_size, allocator_type alloc = allocator_type()) noexcept
-            : allocator_type(std::move(alloc))
+            std::size_t block_size, LLAllocator alloc = LLAllocator()) noexcept
+            : LLAllocator(std::move(alloc))
             , block_size_(block_size)
     {
         // empty
@@ -51,8 +38,7 @@ public:
     memory_block
     allocate_block()
     {
-        auto memory = traits::allocate_array(
-                get_allocator(), block_size_, 1, alignof(std::max_align_t));
+        void* memory = LLAllocator::allocate_node(block_size_, 8);
         memory_block block(memory, block_size_);
         block_size_ = std::size_t(block_size_ * growth_factor());
         return block;
@@ -61,8 +47,7 @@ public:
     void
     deallocate_block(memory_block block) noexcept
     {
-        traits::deallocate_array(
-                get_allocator(), block.memory, block.size, 1, alignof(std::max_align_t));
+        LLAllocator::deallocate_node(block.memory, block.size, 8);
     }
 
     std::size_t
@@ -71,7 +56,7 @@ public:
         return block_size_;
     }
 
-    allocator_type&
+    LLAllocator&
     get_allocator() noexcept
     {
         return *this;

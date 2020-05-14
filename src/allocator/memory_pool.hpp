@@ -131,7 +131,7 @@ private:
         return true;
     }
 
-    memory_arena<growing_block_allocator<>> arena_;
+    memory_arena<growing_block_allocator<lowlevel_allocator<malloc_allocator>>> arena_;
     free_list free_list_;
 
     friend allocator_traits<memory_pool>;
