@@ -5,10 +5,6 @@
 #include <type_traits>
 
 
-namespace detail {
-    constexpr std::size_t max_alignment = alignof(std::max_align_t);
-}
-
 namespace traits_detail {
     // full_concept has the best conversion rank, error the lowest
     // used to give priority to the functions
@@ -238,7 +234,7 @@ namespace traits_detail {
     std::size_t
     max_alignment(min_concept, const Allocator&)
     {
-        return detail::max_alignment;
+        return alignof(std::max_align_t);
     }
 
 } // namespace traits_detail
