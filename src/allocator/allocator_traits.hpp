@@ -101,7 +101,7 @@ namespace traits_detail {
     allocate_node(full_concept, Allocator& alloc, std::size_t size, std::size_t alignment)
             -> decltype(alloc.allocate_node(size, alignment))
     {
-        static_assert(std::is_same<decltype(alloc.allocate_node(size, alignment)), void*>::value,
+        static_assert(std::is_same_v<decltype(alloc.allocate_node(size, alignment)), void*>,
                 "alloc.allocate_node(size, alignment) does not have the return type void*");
         return alloc.allocate_node(size, alignment);
     }
@@ -129,7 +129,7 @@ namespace traits_detail {
             std::size_t alignment) noexcept -> decltype(alloc.deallocate_node(ptr, size, alignment))
     {
         static_assert(
-                std::is_same<decltype(alloc.deallocate_node(ptr, size, alignment)), void>::value,
+                std::is_same_v<decltype(alloc.deallocate_node(ptr, size, alignment)), void>,
                 "alloc.deallocate_node(ptr, size, alignment) does not have the return type void");
         return alloc.deallocate_node(ptr, size, alignment);
     }
@@ -139,8 +139,8 @@ namespace traits_detail {
     deallocate_node(std_concept, Allocator& alloc, void* ptr, std::size_t size,
             std::size_t) noexcept -> decltype(alloc.deallocate(static_cast<char*>(ptr), size))
     {
-        static_assert(std::is_same<decltype(alloc.deallocate(static_cast<char*>(ptr), size)),
-                              void>::value,
+        static_assert(std::is_same_v<decltype(alloc.deallocate(static_cast<char*>(ptr), size)),
+                              void>,
                 "alloc.deallocate(static_cast<char*>(ptr), size) does not have the return type void");
         return alloc.deallocate(static_cast<char*>(ptr), size);
     }
@@ -160,7 +160,7 @@ namespace traits_detail {
             std::size_t alignment) -> decltype(alloc.allocate_array(count, size, alignment))
     {
         static_assert(
-                std::is_same<decltype(alloc.allocate_array(count, size, alignment)), void*>::value,
+                std::is_same_v<decltype(alloc.allocate_array(count, size, alignment)), void*>,
                 "alloc.allocate_array(count, size, alignment) does not have the return type void*");
         return alloc.allocate_array(count, size, alignment);
     }
@@ -179,8 +179,8 @@ namespace traits_detail {
             std::size_t alignment) noexcept
             -> decltype(alloc.deallocate_array(ptr, count, size, alignment))
     {
-        static_assert(std::is_same<decltype(alloc.deallocate_array(ptr, count, size, alignment)),
-                              void>::value,
+        static_assert(std::is_same_v<decltype(alloc.deallocate_array(ptr, count, size, alignment)),
+                              void>,
                 "alloc.deallocate_array(ptr, count, size, alignment) does not have the return type void");
         return alloc.deallocate_array(ptr, count, size, alignment);
     }
@@ -197,7 +197,7 @@ namespace traits_detail {
     auto
     max_node_size(full_concept, const Allocator& alloc) -> decltype(alloc.max_node_size())
     {
-        static_assert(std::is_same<decltype(alloc.max_node_size()), std::size_t>::value,
+        static_assert(std::is_same_v<decltype(alloc.max_node_size()), std::size_t>,
                 "alloc.max_node_size() does not have the return type std::size_t");
         return alloc.max_node_size();
     }
@@ -213,7 +213,7 @@ namespace traits_detail {
     auto
     max_array_size(full_concept, const Allocator& alloc) -> decltype(alloc.max_array_size())
     {
-        static_assert(std::is_same<decltype(alloc.max_array_size()), std::size_t>::value,
+        static_assert(std::is_same_v<decltype(alloc.max_array_size()), std::size_t>,
                 "alloc.max_array_size() does not have the return type std::size_t");
         return alloc.max_array_size();
     }
@@ -229,7 +229,7 @@ namespace traits_detail {
     auto
     max_alignment(full_concept, const Allocator& alloc) -> decltype(alloc.max_alignment())
     {
-        static_assert(std::is_same<decltype(alloc.max_alignment()), std::size_t>::value,
+        static_assert(std::is_same_v<decltype(alloc.max_alignment()), std::size_t>,
                 "alloc.max_alignment() does not have the return type std::size_t");
         return alloc.max_alignment();
     }
