@@ -9,8 +9,7 @@ namespace detail {
     constexpr std::size_t max_alignment = alignof(std::max_align_t);
 }
 
-namespace traits_detail
-{
+namespace traits_detail {
     // full_concept has the best conversion rank, error the lowest
     // used to give priority to the functions
     struct error

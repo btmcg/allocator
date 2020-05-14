@@ -29,7 +29,8 @@ struct memory_block
 /// allocation, allowing an amortized constant allocation time in the
 /// higher level allocator. The factor can be given as rational in the
 /// template parameter, default is \c 2.
-template <class LLAllocator = lowlevel_allocator<malloc_allocator>, std::uint16_t Num = 2, std::uint16_t Den = 1>
+template <class LLAllocator = lowlevel_allocator<malloc_allocator>, std::uint16_t Num = 2,
+        std::uint16_t Den = 1>
 class growing_block_allocator : allocator_traits<LLAllocator>::allocator_type
 {
     static_assert(float(Num) / Den >= 1.0, "invalid growth factor");

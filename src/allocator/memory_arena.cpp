@@ -37,7 +37,9 @@ memory_block::memory_block(void* mem, std::size_t s) noexcept
 }
 
 memory_block::memory_block(void* begin, void* end) noexcept
-        : memory_block(begin, static_cast<std::size_t>(static_cast<std::uint8_t*>(end) - static_cast<std::uint8_t*>(begin)))
+        : memory_block(begin,
+                static_cast<std::size_t>(
+                        static_cast<std::uint8_t*>(end) - static_cast<std::uint8_t*>(begin)))
 {
     // empty
 }
