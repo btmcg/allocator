@@ -47,6 +47,96 @@ TEST_CASE("free_list", "[free_list]")
         }
     }
 
+    SECTION("move ctor")
+    {
+        free_list fl1(sizeof(object));
+        REQUIRE(fl1.node_size() == sizeof(object));
+        REQUIRE(fl1.alignment() == 8);
+        REQUIRE(fl1.capacity() == 0);
+        REQUIRE(fl1.empty());
+
+        void* mem = std::malloc(sizeof(object) * 5);
+        fl1.insert(mem, sizeof(object) * 5);
+        REQUIRE(fl1.capacity() == 5);
+        REQUIRE_FALSE(fl1.empty());
+
+        free_list fl2(std::move(fl1));
+        REQUIRE(fl2.node_size() == sizeof(object));
+        REQUIRE(fl2.alignment() == 8);
+        REQUIRE(fl2.capacity() == 5);
+        REQUIRE_FALSE(fl2.empty());
+
+        std::free(mem);
+    }
+
+    SECTION("move assignment")
+    {
+        free_list fl1(sizeof(object));
+        REQUIRE(fl1.node_size() == sizeof(object));
+        REQUIRE(fl1.alignment() == 8);
+        REQUIRE(fl1.capacity() == 0);
+        REQUIRE(fl1.empty());
+
+        void* mem = std::malloc(sizeof(object) * 5);
+        fl1.insert(mem, sizeof(object) * 5);
+        REQUIRE(fl1.capacity() == 5);
+        REQUIRE_FALSE(fl1.empty());
+
+        free_list fl2(sizeof(big_object));
+        REQUIRE(fl2.node_size() == sizeof(big_object));
+        REQUIRE(fl2.alignment() == 16);
+        REQUIRE(fl2.capacity() == 0);
+        REQUIRE(fl2.empty());
+
+        fl2 = std::move(fl1);
+        REQUIRE(fl2.node_size() == sizeof(object));
+        REQUIRE(fl2.alignment() == 8);
+        REQUIRE(fl2.capacity() == 5);
+        REQUIRE_FALSE(fl2.empty());
+
+        std::free(mem);
+    }
+
+    SECTION("swap")
+    {
+        free_list fl1(sizeof(object));
+        REQUIRE(fl1.node_size() == sizeof(object));
+        REQUIRE(fl1.alignment() == 8);
+        REQUIRE(fl1.capacity() == 0);
+        REQUIRE(fl1.empty());
+        void* mem1 = std::malloc(sizeof(object) * 10);
+        fl1.insert(mem1, sizeof(object) * 10);
+        REQUIRE(fl1.capacity() == 10);
+        REQUIRE_FALSE(fl1.empty());
+
+        free_list fl2(sizeof(big_object));
+        REQUIRE(fl2.node_size() == sizeof(big_object));
+        REQUIRE(fl2.alignment() == 16);
+        REQUIRE(fl2.capacity() == 0);
+        REQUIRE(fl2.empty());
+        void* mem2 = std::malloc(sizeof(big_object) * 5);
+        fl2.insert(mem2, sizeof(big_object) * 5);
+        REQUIRE(fl2.capacity() == 5);
+        REQUIRE_FALSE(fl2.empty());
+
+        std::swap(fl1, fl2);
+
+        // fl1 is now free_list of big_objects
+        REQUIRE(fl1.node_size() == sizeof(big_object));
+        REQUIRE(fl1.alignment() == 16);
+        REQUIRE(fl1.capacity() == 5);
+        REQUIRE_FALSE(fl1.empty());
+
+        // fl2 is now free_list of objects
+        REQUIRE(fl2.node_size() == sizeof(object));
+        REQUIRE(fl2.alignment() == 8);
+        REQUIRE(fl2.capacity() == 10);
+        REQUIRE_FALSE(fl2.empty());
+
+        std::free(mem1);
+        std::free(mem2);
+    }
+
     SECTION("alloc-dealloc node")
     {
         void* mem = std::malloc(sizeof(object) * 5);
