@@ -118,19 +118,6 @@ private:
         return mem;
     }
 
-    void*
-    try_allocate_array(std::size_t n, std::size_t node_size) noexcept
-    {
-        return free_list_.empty() ? nullptr : free_list_.allocate(n * node_size);
-    }
-
-    bool
-    try_deallocate_array(void* ptr, std::size_t n, std::size_t node_size) noexcept
-    {
-        free_list_.deallocate(ptr, n * node_size);
-        return true;
-    }
-
     memory_arena<growing_block_allocator<lowlevel_allocator<malloc_allocator>>> arena_;
     free_list free_list_;
 
