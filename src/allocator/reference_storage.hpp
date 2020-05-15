@@ -13,7 +13,9 @@ public:
 
     reference_storage(memory_pool& alloc) noexcept
             : alloc_(&alloc)
-    {}
+    {
+        // empty
+    }
 
     reference_storage(const reference_storage&) noexcept = default;
     reference_storage& operator=(const reference_storage&) noexcept = default;

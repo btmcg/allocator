@@ -137,7 +137,6 @@ class allocator_traits<memory_pool>
 {
 public:
     using allocator_type = memory_pool;
-    using is_stateful = std::true_type;
 
     static void*
     allocate_node(allocator_type& state, std::size_t /*size*/, std::size_t /*alignment*/)

@@ -28,7 +28,9 @@ public:
     template <class Alloc>
     std_allocator(Alloc& alloc, decltype(reference_storage(alloc), int()) = 0) noexcept
             : reference_storage(alloc)
-    {}
+    {
+        // empty
+    }
 
     std_allocator<value_type, Allocator>
     select_on_container_copy_construction() const

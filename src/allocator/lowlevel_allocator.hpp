@@ -11,8 +11,7 @@
 class bad_allocation : public std::bad_alloc
 {
 public:
-    bad_allocation() noexcept
-    {}
+    bad_allocation() noexcept = default;
 
     char const*
     what() const noexcept override
@@ -26,14 +25,20 @@ template <class Functor>
 class lowlevel_allocator
 {
 public:
-    using is_stateful = std::false_type;
-
     lowlevel_allocator() noexcept
-    {}
+    {
+        // empty
+    }
+
     lowlevel_allocator(lowlevel_allocator&&) noexcept
-    {}
+    {
+        // empty
+    }
+
     ~lowlevel_allocator() noexcept
-    {}
+    {
+        // empty
+    }
 
     lowlevel_allocator&
     operator=(lowlevel_allocator&&) noexcept
