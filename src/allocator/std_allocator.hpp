@@ -24,27 +24,9 @@ public:
 
     using allocator_type = typename reference_storage::allocator_type;
 
+    /// ctor used when initializing std containers
     template <class Alloc>
     std_allocator(Alloc& alloc, decltype(reference_storage(alloc), int()) = 0) noexcept
-            : reference_storage(alloc)
-    {}
-
-    template <class Alloc>
-    std_allocator(Alloc const& alloc, decltype(reference_storage(alloc))) noexcept
-            : reference_storage(alloc)
-    {}
-
-    std_allocator(reference_storage const& alloc) noexcept
-            : reference_storage(alloc)
-    {}
-
-    template <typename U>
-    std_allocator(std_allocator<U, Allocator> const& alloc) noexcept
-            : reference_storage(alloc)
-    {}
-
-    template <typename U>
-    std_allocator(std_allocator<U, Allocator>& alloc) noexcept
             : reference_storage(alloc)
     {}
 
