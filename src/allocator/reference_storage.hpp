@@ -17,8 +17,8 @@ public:
         // empty
     }
 
-    reference_storage(const reference_storage&) noexcept = default;
-    reference_storage& operator=(const reference_storage&) noexcept = default;
+    reference_storage(reference_storage const&) noexcept = default;
+    reference_storage& operator=(reference_storage const&) noexcept = default;
 
     bool
     is_valid() const noexcept

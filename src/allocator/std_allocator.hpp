@@ -25,8 +25,8 @@ public:
     using allocator_type = reference_storage::allocator_type;
 
     /// ctor used when initializing std containers
-    template <class Alloc>
-    std_allocator(Alloc& alloc, decltype(reference_storage(alloc), int()) = 0) noexcept
+    template <typename Alloc>
+    std_allocator(Alloc& alloc) noexcept
             : reference_storage(alloc)
     {
         // empty
