@@ -19,6 +19,36 @@ struct dummy_allocator
     {
         fmt::print("dummy_allocator::deallocate_node({}, {}, {})\n", ptr, size, alignment);
     }
+
+    void*
+    allocate_array(std::size_t count, std::size_t size, std::size_t alignment)
+    {
+        return allocate_node(count * size, alignment);
+    }
+
+    void
+    deallocate_array(void* ptr, std::size_t count, std::size_t size, std::size_t alignment)
+    {
+        deallocate_node(ptr, count * size, alignment);
+    }
+
+    std::size_t
+    max_node_size() const
+    {
+        return 64;
+    }
+
+    std::size_t
+    max_array_size() const
+    {
+        return max_node_size();
+    }
+
+    std::size_t
+    max_alignment() const
+    {
+        return 8;
+    }
 };
 
 struct printing_allocator
@@ -89,9 +119,21 @@ TEST_CASE("allocator_traits", "[allocator_traits]")
         REQUIRE(ac.allocate_array(alloc, 10, 32, 8) == nullptr);
         ac.deallocate_node(alloc, nullptr, 32, 8);
         ac.deallocate_array(alloc, nullptr, 10, 32, 8);
-        REQUIRE(ac.max_node_size(alloc) == 0xffffffffffffffff);
-        REQUIRE(ac.max_array_size(alloc) == 0xffffffffffffffff);
-        REQUIRE(ac.max_alignment(alloc) == 16);
+        REQUIRE(ac.max_node_size(alloc) == 64);
+        REQUIRE(ac.max_array_size(alloc) == 64);
+        REQUIRE(ac.max_alignment(alloc) == 8);
+    }
+
+    SECTION("copying")
+    {
+        dummy_allocator alloc;
+        allocator_traits<dummy_allocator> ac;
+        REQUIRE(ac.allocate_node(alloc, 32, 8) == nullptr);
+        REQUIRE(ac.allocate_array(alloc, 10, 32, 8) == nullptr);
+
+        allocator_traits<dummy_allocator> ac2 = ac;
+        REQUIRE(ac2.allocate_node(alloc, 32, 8) == nullptr);
+        REQUIRE(ac2.allocate_array(alloc, 10, 32, 8) == nullptr);
     }
 
     SECTION("malloc")

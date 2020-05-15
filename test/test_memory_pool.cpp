@@ -108,6 +108,48 @@ TEST_CASE("memory_pool", "[memory_pool]")
             REQUIRE(itr == i++);
     }
 
+    SECTION("copy int list")
+    {
+        constexpr std::size_t l_node_size = sizeof(std::int64_t) + (sizeof(std::uintptr_t) * 2);
+
+        memory_pool pool(l_node_size, 4096);
+        std::list<int, std_allocator<int, memory_pool>> list1(pool);
+        list1.emplace_back(0);
+        list1.emplace_back(1);
+        list1.emplace_back(2);
+        list1.emplace_back(3);
+        list1.emplace_back(4);
+
+        std::list<int, std_allocator<int, memory_pool>> list2 = list1;
+
+        auto l1_itr = list1.cbegin();
+        for (int i = 0; i < 5; ++i) {
+            REQUIRE(*l1_itr == i);
+            ++l1_itr;
+        }
+
+        auto l2_itr = list2.cbegin();
+        for (int i = 0; i < 5; ++i) {
+            REQUIRE(*l2_itr == i);
+            ++l2_itr;
+        }
+
+        list1.emplace_back(5);
+        list1.emplace_back(6);
+        list1.emplace_back(7);
+        list1.emplace_back(8);
+        list1.emplace_back(9);
+        l1_itr = list1.cbegin();
+        for (int i = 0; i < 10; ++i) {
+            REQUIRE(*l1_itr == i);
+            ++l1_itr;
+        }
+
+        // ensure list2 still ends at 5
+        auto l2_end = list2.crend();
+        REQUIRE(*l2_end == 5);
+    }
+
     SECTION("unordered_map")
     {
         class object
