@@ -22,7 +22,7 @@ public:
         using other = std_allocator<U, Allocator>;
     };
 
-    using allocator_type = typename reference_storage::allocator_type;
+    using allocator_type = reference_storage::allocator_type;
 
     /// ctor used when initializing std containers
     template <class Alloc>
@@ -69,15 +69,14 @@ public:
         return this->max_array_size() / sizeof(value_type);
     }
 
-    auto
-    get_allocator() noexcept -> decltype(std::declval<reference_storage>().get_allocator())
+    allocator_type&
+    get_allocator() noexcept
     {
         return reference_storage::get_allocator();
     }
 
-    auto
+    allocator_type const&
     get_allocator() const noexcept
-            -> decltype(std::declval<reference_storage const>().get_allocator())
     {
         return reference_storage::get_allocator();
     }
