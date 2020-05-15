@@ -99,20 +99,19 @@ private:
     void
     allocate_block()
     {
-        auto mem = arena_.allocate_block();
-        free_list_.insert(static_cast<char*>(mem.memory), mem.size);
+        memory_block mb = arena_.allocate_block();
+        free_list_.insert(static_cast<char*>(mb.memory), mb.size);
     }
 
     void*
     allocate_array(std::size_t n, std::size_t node_size)
     {
-        auto mem = free_list_.empty() ? nullptr : free_list_.allocate(n * node_size);
-        if (!mem) {
+        void* mem = free_list_.empty() ? nullptr : free_list_.allocate(n * node_size);
+        if (mem == nullptr) {
             allocate_block();
             mem = free_list_.allocate(n * node_size);
-            if (!mem) {
+            if (mem == nullptr)
                 throw std::bad_alloc();
-            }
         }
         return mem;
     }
