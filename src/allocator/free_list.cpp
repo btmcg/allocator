@@ -1,6 +1,6 @@
 #include "free_list.hpp"
 #include "common/assert.hpp"
-#include <climits>
+#include <climits> // CHAR_BIT
 #include <cstdint>
 #include <cstring>
 #include <utility>
@@ -8,25 +8,10 @@
 
 namespace {
 
-    constexpr std::size_t max_alignment = alignof(std::max_align_t);
-
-    inline std::size_t
-    ilog2_base(std::uint64_t x)
-    {
-        unsigned long long value = x;
-        return sizeof(value) * CHAR_BIT - __builtin_clzll(value);
-    }
-
-    inline std::size_t
+    constexpr inline std::size_t
     ilog2(std::uint64_t x)
     {
-        return ilog2_base(x) - 1;
-    }
-
-    std::size_t
-    alignment_for(std::size_t size) noexcept
-    {
-        return size >= max_alignment ? max_alignment : (1u << ilog2(size));
+        return ((sizeof(x) * CHAR_BIT) - __builtin_clzll(x)) - 1;
     }
 
     // sets stored integer value
@@ -36,7 +21,6 @@ namespace {
         DEBUG_ASSERT(address);
         std::memcpy(address, &i, sizeof(std::uintptr_t));
     }
-
 
     // reads stored integer value
     inline std::uintptr_t
@@ -250,7 +234,8 @@ free_list::node_size() const noexcept
 std::size_t
 free_list::alignment() const noexcept
 {
-    return alignment_for(node_size_);
+    constexpr static std::size_t max_alignment = alignof(std::max_align_t);
+    return node_size_ >= max_alignment ? max_alignment : (1u << ilog2(node_size_));
 }
 
 std::size_t
