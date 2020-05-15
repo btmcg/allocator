@@ -12,9 +12,9 @@ public:
     //=== typedefs ===//
     using value_type = T;
     using pointer = T*;
-    using const_pointer = const T*;
+    using const_pointer = T const*;
     using reference = T&;
-    using const_reference = const T&;
+    using const_reference = T const&;
     using size_type = std::size_t;
     using difference_type = std::ptrdiff_t;
 
@@ -34,22 +34,22 @@ public:
     //         : reference_storage(allocator_type{})
     // {}
 
-    template <class RawAlloc>
-    std_allocator(RawAlloc& alloc, decltype(reference_storage(alloc), int()) = 0) noexcept
+    template <class Alloc>
+    std_allocator(Alloc& alloc, decltype(reference_storage(alloc), int()) = 0) noexcept
             : reference_storage(alloc)
     {}
 
-    template <class RawAlloc>
-    std_allocator(const RawAlloc& alloc, decltype(reference_storage(alloc))) noexcept
+    template <class Alloc>
+    std_allocator(Alloc const& alloc, decltype(reference_storage(alloc))) noexcept
             : reference_storage(alloc)
     {}
 
-    std_allocator(const reference_storage& alloc) noexcept
+    std_allocator(reference_storage const& alloc) noexcept
             : reference_storage(alloc)
     {}
 
     template <typename U>
-    std_allocator(const std_allocator<U, Allocator>& alloc) noexcept
+    std_allocator(std_allocator<U, Allocator> const& alloc) noexcept
             : reference_storage(alloc)
     {}
 
@@ -105,7 +105,7 @@ public:
 
     auto
     get_allocator() const noexcept
-            -> decltype(std::declval<const reference_storage>().get_allocator())
+            -> decltype(std::declval<reference_storage const>().get_allocator())
     {
         return reference_storage::get_allocator();
     }
@@ -131,14 +131,14 @@ private:
 
     template <typename U> // stateful
     bool
-    equal_to_impl(const std_allocator<U, Allocator>& other) const noexcept
+    equal_to_impl(std_allocator<U, Allocator> const& other) const noexcept
     {
         return &get_allocator() == &other.get_allocator();
     }
 
     template <typename T1, typename T2, class Impl>
     friend bool operator==(
-            const std_allocator<T1, Impl>& lhs, const std_allocator<T2, Impl>& rhs) noexcept;
+            std_allocator<T1, Impl> const& lhs, std_allocator<T2, Impl> const& rhs) noexcept;
 
     template <typename U, class OtherAllocator>
     friend class std_allocator;
@@ -147,14 +147,14 @@ private:
 
 template <typename T, typename U, class Impl>
 bool
-operator==(const std_allocator<T, Impl>& lhs, const std_allocator<U, Impl>& rhs) noexcept
+operator==(std_allocator<T, Impl> const& lhs, std_allocator<U, Impl> const& rhs) noexcept
 {
     return lhs.equal_to_impl(rhs);
 }
 
 template <typename T, typename U, class Impl>
 bool
-operator!=(const std_allocator<T, Impl>& lhs, const std_allocator<U, Impl>& rhs) noexcept
+operator!=(std_allocator<T, Impl> const& lhs, std_allocator<U, Impl> const& rhs) noexcept
 {
     return !(lhs == rhs);
 }
