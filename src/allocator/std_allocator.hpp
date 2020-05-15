@@ -39,13 +39,19 @@ public:
     value_type*
     allocate(size_type n, void* = nullptr)
     {
-        return static_cast<value_type*>(allocate_impl(n));
+        if (n == 1)
+            return static_cast<value_type*>(get_allocator().allocate_node());
+        else
+            return static_cast<value_type*>(get_allocator().allocate_array(n));
     }
 
     void
-    deallocate(value_type* p, size_type n) noexcept
+    deallocate(value_type* ptr, size_type n) noexcept
     {
-        deallocate_impl(p, n);
+        if (n == 1)
+            get_allocator().deallocate_node(ptr);
+        else
+            get_allocator().deallocate_array(ptr, n);
     }
 
     template <typename U, typename... Args>
@@ -82,31 +88,6 @@ public:
     }
 
 private:
-    void*
-    allocate_impl(size_type n)
-    {
-        if (n == 1)
-            return get_allocator().allocate_node();
-        else
-            return get_allocator().allocate_array(n);
-    }
-
-    void
-    deallocate_impl(void* ptr, size_type n)
-    {
-        if (n == 1)
-            get_allocator().deallocate_node(ptr);
-        else
-            get_allocator().deallocate_array(ptr, n);
-    }
-
-    template <typename U> // stateful
-    bool
-    equal_to_impl(std_allocator<U, Allocator> const& other) const noexcept
-    {
-        return &get_allocator() == &other.get_allocator();
-    }
-
     template <typename T1, typename T2, class Impl>
     friend bool operator==(
             std_allocator<T1, Impl> const& lhs, std_allocator<T2, Impl> const& rhs) noexcept;
@@ -120,7 +101,7 @@ template <typename T, typename U, class Impl>
 bool
 operator==(std_allocator<T, Impl> const& lhs, std_allocator<U, Impl> const& rhs) noexcept
 {
-    return lhs.equal_to_impl(rhs);
+    return &lhs.get_allocator() == &rhs.get_allocator();
 }
 
 template <typename T, typename U, class Impl>
