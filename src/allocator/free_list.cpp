@@ -209,9 +209,7 @@ free_list::allocate(std::size_t n) noexcept
     if (n <= node_size_)
         return allocate();
 
-    std::size_t actual_size = node_size_;
-
-    auto i = list_search_array(first_, n, actual_size);
+    interval i = list_search_array(first_, n, node_size_);
     if (i.first == nullptr)
         return nullptr;
 
@@ -219,7 +217,7 @@ free_list::allocate(std::size_t n) noexcept
         list_set_next(i.prev, i.next); // change next from previous to first after
     else
         first_ = i.next;
-    capacity_ -= i.size(actual_size);
+    capacity_ -= i.size(node_size_);
 
     return i.first;
 }
@@ -270,14 +268,13 @@ free_list::empty() const noexcept
 void
 free_list::insert_impl(void* mem, std::size_t size) noexcept
 {
-    std::size_t actual_size = node_size_;
-    auto no_nodes = size / actual_size;
+    auto no_nodes = size / node_size_;
     DEBUG_ASSERT(no_nodes > 0);
 
     std::uint8_t* cur = static_cast<std::uint8_t*>(mem);
     for (std::size_t i = 0u; i != no_nodes - 1; ++i) {
-        list_set_next(cur, cur + actual_size);
-        cur += actual_size;
+        list_set_next(cur, cur + node_size_);
+        cur += node_size_;
     }
     list_set_next(cur, first_);
     first_ = static_cast<std::uint8_t*>(mem);
