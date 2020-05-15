@@ -129,7 +129,7 @@ public:
 
     template <typename... Args>
     explicit memory_arena(std::size_t block_size, Args&&... args)
-            : allocator_type(block_size, forward<Args>(args)...)
+            : allocator_type(block_size, std::forward<Args>(args)...)
     {}
 
     /// Deallocates all memory blocks that where requested back
