@@ -188,12 +188,6 @@ free_list::insert(void* mem, std::size_t size) noexcept
     insert_impl(mem, size);
 }
 
-std::size_t
-free_list::usable_size(std::size_t size) const noexcept
-{
-    return size;
-}
-
 void*
 free_list::allocate() noexcept
 {
