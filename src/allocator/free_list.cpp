@@ -26,7 +26,7 @@ namespace {
     std::size_t
     alignment_for(std::size_t size) noexcept
     {
-        return size >= max_alignment ? max_alignment : (std::size_t(1) << ilog2(size));
+        return size >= max_alignment ? max_alignment : (1u << ilog2(size));
     }
 
     // sets stored integer value
@@ -42,7 +42,7 @@ namespace {
     inline std::uintptr_t
     get_int(void* address) noexcept
     {
-        DEBUG_ASSERT(address);
+        DEBUG_ASSERT(address != nullptr);
         std::uintptr_t res;
         std::memcpy(&res, address, sizeof(std::uintptr_t));
         return res;
@@ -67,6 +67,7 @@ namespace {
     inline char*
     list_get_next(void* address) noexcept
     {
+        DEBUG_ASSERT(address != nullptr);
         return from_int(get_int(address));
     }
 
@@ -147,7 +148,9 @@ free_list::free_list(std::size_t node_size) noexcept
         : first_(nullptr)
         , node_size_(node_size > min_element_size ? node_size : min_element_size)
         , capacity_(0u)
-{}
+{
+    // empty
+}
 
 free_list::free_list(std::size_t node_size, void* mem, std::size_t size) noexcept
         : free_list(node_size)
@@ -183,8 +186,8 @@ swap(free_list& a, free_list& b) noexcept
 void
 free_list::insert(void* mem, std::size_t size) noexcept
 {
-    DEBUG_ASSERT(mem);
-
+    DEBUG_ASSERT(mem != nullptr);
+    DEBUG_ASSERT(size != 0);
     insert_impl(mem, size);
 }
 
