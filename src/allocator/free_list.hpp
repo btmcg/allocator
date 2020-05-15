@@ -7,10 +7,8 @@
 class free_list
 {
 public:
-    // minimum element size
-    static constexpr auto min_element_size = sizeof(char*);
-    // alignment
-    static constexpr auto min_element_alignment = alignof(char*);
+    static constexpr std::size_t min_element_size = sizeof(std::uint8_t*);
+    static constexpr std::size_t min_element_alignment = alignof(std::uint8_t*);
 
     free_list(std::size_t node_size) noexcept;
     /// calls constructor plus insert
@@ -37,7 +35,7 @@ private:
     void insert_impl(void* mem, std::size_t size) noexcept;
 
 private:
-    char* first_;
-    std::size_t node_size_;
-    std::size_t capacity_;
+    std::uint8_t* first_ = nullptr;
+    std::size_t node_size_ = 0;
+    std::size_t capacity_ = 0;
 };

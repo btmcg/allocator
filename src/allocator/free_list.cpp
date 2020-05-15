@@ -50,21 +50,21 @@ namespace {
 
     // pointer to integer
     inline std::uintptr_t
-    to_int(char* ptr) noexcept
+    to_int(std::uint8_t* ptr) noexcept
     {
         return reinterpret_cast<std::uintptr_t>(ptr);
     }
 
 
     // integer to pointer
-    inline char*
+    inline std::uint8_t*
     from_int(std::uintptr_t i) noexcept
     {
-        return reinterpret_cast<char*>(i);
+        return reinterpret_cast<std::uint8_t*>(i);
     }
 
 
-    inline char*
+    inline std::uint8_t*
     list_get_next(void* address) noexcept
     {
         DEBUG_ASSERT(address != nullptr);
@@ -73,7 +73,7 @@ namespace {
 
     // stores a pointer value
     inline void
-    list_set_next(void* address, char* ptr) noexcept
+    list_set_next(void* address, std::uint8_t* ptr) noexcept
     {
         set_int(address, to_int(ptr));
     }
@@ -82,10 +82,10 @@ namespace {
     // i.e. array
     struct interval
     {
-        char* prev; // last before
-        char* first; // first in
-        char* last; // last in
-        char* next; // first after
+        std::uint8_t* prev; // last before
+        std::uint8_t* first; // first in
+        std::uint8_t* last; // last in
+        std::uint8_t* next; // first after
 
         // number of nodes in the interval
         std::size_t
@@ -104,7 +104,7 @@ namespace {
     // assumes list is not empty
     // similar to list_search_array()
     interval
-    list_search_array(char* first, std::size_t bytes_needed, std::size_t node_size) noexcept
+    list_search_array(std::uint8_t* first, std::size_t bytes_needed, std::size_t node_size) noexcept
     {
         interval i;
         i.prev = nullptr;
@@ -197,7 +197,7 @@ free_list::allocate() noexcept
     DEBUG_ASSERT(!empty());
     --capacity_;
 
-    auto mem = first_;
+    std::uint8_t* mem = first_;
     first_ = list_get_next(first_);
     return mem;
 }
@@ -209,7 +209,7 @@ free_list::allocate(std::size_t n) noexcept
     if (n <= node_size_)
         return allocate();
 
-    auto actual_size = node_size_;
+    std::size_t actual_size = node_size_;
 
     auto i = list_search_array(first_, n, actual_size);
     if (i.first == nullptr)
@@ -229,7 +229,7 @@ free_list::deallocate(void* ptr) noexcept
 {
     ++capacity_;
 
-    auto node = static_cast<char*>(ptr);
+    std::uint8_t* node = static_cast<std::uint8_t*>(ptr);
     list_set_next(node, first_);
     first_ = node;
 }
@@ -239,10 +239,8 @@ free_list::deallocate(void* ptr, std::size_t n) noexcept
 {
     if (n <= node_size_)
         deallocate(ptr);
-    else {
-        auto mem = ptr;
-        insert_impl(mem, n);
-    }
+    else
+        insert_impl(ptr, n);
 }
 
 std::size_t
@@ -272,17 +270,17 @@ free_list::empty() const noexcept
 void
 free_list::insert_impl(void* mem, std::size_t size) noexcept
 {
-    auto actual_size = node_size_;
+    std::size_t actual_size = node_size_;
     auto no_nodes = size / actual_size;
     DEBUG_ASSERT(no_nodes > 0);
 
-    auto cur = static_cast<char*>(mem);
+    std::uint8_t* cur = static_cast<std::uint8_t*>(mem);
     for (std::size_t i = 0u; i != no_nodes - 1; ++i) {
         list_set_next(cur, cur + actual_size);
         cur += actual_size;
     }
     list_set_next(cur, first_);
-    first_ = static_cast<char*>(mem);
+    first_ = static_cast<std::uint8_t*>(mem);
 
     capacity_ += no_nodes;
 }
