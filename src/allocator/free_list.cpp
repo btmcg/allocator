@@ -1,8 +1,7 @@
 #include "free_list.hpp"
 #include "common/assert.hpp"
 #include <climits> // CHAR_BIT
-#include <cstdint>
-#include <cstring>
+#include <cstring> // std::memcpy
 #include <utility>
 
 
