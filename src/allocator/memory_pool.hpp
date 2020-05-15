@@ -1,6 +1,5 @@
 #pragma once
 
-#include "allocator_traits.hpp"
 #include "free_list.hpp"
 #include "memory_arena.hpp"
 #include "common/assert.hpp"
@@ -120,66 +119,6 @@ private:
 
     memory_arena<growing_block_allocator<lowlevel_allocator<malloc_allocator>>> arena_;
     free_list free_list_;
-
-    friend allocator_traits<memory_pool>;
 };
 
 constexpr std::size_t memory_pool::min_node_size;
-
-
-/// Specialization of the \ref allocator_traits for \ref memory_pool
-/// classes.
-/// \note It is not allowed to mix calls through the specialization
-/// and through the member functions, i.e.
-/// \ref memory_pool::allocate_node() and this \c allocate_node().
-template <>
-class allocator_traits<memory_pool>
-{
-public:
-    using allocator_type = memory_pool;
-
-    static void*
-    allocate_node(allocator_type& state, std::size_t /*size*/, std::size_t /*alignment*/)
-    {
-        auto mem = state.allocate_node();
-        return mem;
-    }
-
-    static void*
-    allocate_array(allocator_type& state, std::size_t count, std::size_t size, std::size_t
-            /*alignment*/)
-    {
-        return state.allocate_array(count, size);
-    }
-
-    static void
-    deallocate_node(allocator_type& state, void* node, std::size_t /*size*/, std::size_t) noexcept
-    {
-        state.deallocate_node(node);
-    }
-
-    static void
-    deallocate_array(allocator_type& state, void* array, std::size_t count, std::size_t size,
-            std::size_t) noexcept
-    {
-        state.free_list_.deallocate(array, count * size);
-    }
-
-    static std::size_t
-    max_node_size(const allocator_type& state) noexcept
-    {
-        return state.node_size();
-    }
-
-    static std::size_t
-    max_array_size(const allocator_type& state) noexcept
-    {
-        return state.next_capacity();
-    }
-
-    static std::size_t
-    max_alignment(const allocator_type& state) noexcept
-    {
-        return state.free_list_.alignment();
-    }
-};
