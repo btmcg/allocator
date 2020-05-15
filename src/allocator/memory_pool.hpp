@@ -117,6 +117,7 @@ private:
         return mem;
     }
 
+private:
     memory_arena<growing_block_allocator<lowlevel_allocator<malloc_allocator>>> arena_;
     free_list free_list_;
 };
