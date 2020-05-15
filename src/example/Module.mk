@@ -1,5 +1,5 @@
 LOCAL_PATH := $(call my-dir)
 LOCAL_SOURCE_FILES := $(wildcard *.cpp)
-LOCAL_LIBRARIES :=
+LOCAL_LIBRARIES := allocator
 
 $(call add-executable-module)
