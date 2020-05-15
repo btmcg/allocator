@@ -9,15 +9,9 @@ template <typename T, class Allocator>
 class std_allocator : reference_storage
 {
 public:
-    //=== typedefs ===//
     using value_type = T;
-    using pointer = T*;
-    using const_pointer = T const*;
-    using reference = T&;
-    using const_reference = T const&;
     using size_type = std::size_t;
     using difference_type = std::ptrdiff_t;
-
     using propagate_on_container_swap = std::true_type;
     using propagate_on_container_move_assignment = std::true_type;
     using propagate_on_container_copy_assignment = std::true_type;
@@ -29,10 +23,6 @@ public:
     };
 
     using allocator_type = typename reference_storage::allocator_type;
-
-    // std_allocator() noexcept
-    //         : reference_storage(allocator_type{})
-    // {}
 
     template <class Alloc>
     std_allocator(Alloc& alloc, decltype(reference_storage(alloc), int()) = 0) noexcept
@@ -58,20 +48,20 @@ public:
             : reference_storage(alloc)
     {}
 
-    std_allocator<T, Allocator>
+    std_allocator<value_type, Allocator>
     select_on_container_copy_construction() const
     {
         return *this;
     }
 
-    pointer
+    value_type*
     allocate(size_type n, void* = nullptr)
     {
-        return static_cast<pointer>(allocate_impl(n));
+        return static_cast<value_type*>(allocate_impl(n));
     }
 
     void
-    deallocate(pointer p, size_type n) noexcept
+    deallocate(value_type* p, size_type n) noexcept
     {
         deallocate_impl(p, n);
     }
