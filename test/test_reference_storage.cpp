@@ -24,7 +24,7 @@ TEST_CASE("reference_storage", "[reference_storage]")
 
     SECTION("value ctor")
     {
-        memory_pool mp(16, 1024);
+        memory_pool mp(16, 100);
         reference_storage rs(mp);
         REQUIRE(rs.is_valid());
 
