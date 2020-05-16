@@ -18,80 +18,84 @@ TEST_CASE("memory_pool", "[memory_pool]")
     SECTION("ctor")
     {
         constexpr std::size_t node_size = sizeof(std::uint64_t);
-        constexpr std::size_t block_size = 4096;
+        constexpr std::size_t count = 100;
 
-        memory_pool pool(node_size, block_size);
+        memory_pool pool(node_size, count);
         REQUIRE(pool.node_size() == node_size);
-        REQUIRE(pool.capacity_left() == block_size - 16);
-        REQUIRE(pool.next_capacity() == (block_size * 2) - 16);
+        REQUIRE(pool.capacity_left() == node_size * count - 16);
+        REQUIRE(pool.next_capacity() == (node_size * count * 2) - 16);
     }
 
     SECTION("move ctor")
     {
         constexpr std::size_t node_size = sizeof(std::uint64_t);
-        constexpr std::size_t block_size = 4096;
+        constexpr std::size_t count = 1000;
 
-        memory_pool pool1(node_size, block_size);
+        memory_pool pool1(node_size, count);
         REQUIRE(pool1.node_size() == node_size);
-        REQUIRE(pool1.capacity_left() == block_size - 16);
-        REQUIRE(pool1.next_capacity() == (block_size * 2) - 16);
+        REQUIRE(pool1.capacity_left() == node_size * count - 16);
+        REQUIRE(pool1.next_capacity() == (node_size * count * 2) - 16);
 
         memory_pool pool2(std::move(pool1));
         REQUIRE(pool2.node_size() == node_size);
-        REQUIRE(pool2.capacity_left() == block_size - 16);
-        REQUIRE(pool2.next_capacity() == (block_size * 2) - 16);
+        REQUIRE(pool2.capacity_left() == node_size * count - 16);
+        REQUIRE(pool2.next_capacity() == (node_size * count * 2) - 16);
     }
 
     SECTION("move assignment")
     {
         constexpr std::size_t node_size = sizeof(std::uint64_t);
-        constexpr std::size_t block_size = 4096;
+        constexpr std::size_t count = 100;
 
-        memory_pool pool1(node_size, block_size);
+        memory_pool pool1(node_size, count);
         REQUIRE(pool1.node_size() == node_size);
-        REQUIRE(pool1.capacity_left() == block_size - 16);
-        REQUIRE(pool1.next_capacity() == (block_size * 2) - 16);
+        REQUIRE(pool1.capacity_left() == node_size * count - 16);
+        REQUIRE(pool1.next_capacity() == (node_size * count * 2) - 16);
 
-        memory_pool pool2(node_size * 2, block_size * 2);
+        memory_pool pool2(node_size * 2, count * 2);
         pool2 = std::move(pool1);
         REQUIRE(pool2.node_size() == node_size);
-        REQUIRE(pool2.capacity_left() == block_size - 16);
-        REQUIRE(pool2.next_capacity() == (block_size * 2) - 16);
+        REQUIRE(pool2.capacity_left() == node_size * count - 16);
+        REQUIRE(pool2.next_capacity() == (node_size * count * 2) - 16);
     }
 
     SECTION("alloc-dealloc")
     {
-        memory_pool pool(sizeof(object), 4096);
-        REQUIRE(pool.node_size() == sizeof(object));
-        REQUIRE(pool.capacity_left() == 4096 - 16);
-        REQUIRE(pool.next_capacity() == (4096 * 2) - 16);
+        constexpr std::size_t node_size = sizeof(object);
+        constexpr std::size_t count = 100;
+
+        memory_pool pool(node_size, count);
+        REQUIRE(pool.node_size() == node_size);
+        REQUIRE(pool.capacity_left() == node_size * count - 24);
+        REQUIRE(pool.next_capacity() == (node_size * count * 2) - 16);
 
         object* ptr1 = static_cast<object*>(pool.allocate_node());
         ptr1->a = ptr1->b = ptr1->c = 1;
-        REQUIRE(pool.capacity_left() == (4096 - 16) - sizeof(object));
+        REQUIRE(pool.capacity_left() == (node_size * count - 24) - node_size);
 
         pool.deallocate_node(ptr1);
-        REQUIRE(pool.capacity_left() == 4096 - 16);
+        REQUIRE(pool.capacity_left() == node_size * count - 24);
 
         object* ptr2 = static_cast<object*>(pool.allocate_node());
         REQUIRE(ptr1 == ptr2);
-        REQUIRE(pool.capacity_left() == (4096 - 16) - sizeof(object));
+        REQUIRE(pool.capacity_left() == (node_size * count - 24) - node_size);
 
         ptr1 = static_cast<object*>(pool.allocate_node());
         object* ptr3 = static_cast<object*>(pool.allocate_node());
-        REQUIRE(pool.capacity_left() == (4096 - 16) - (sizeof(object) * 3));
+        REQUIRE(pool.capacity_left() == (node_size * count - 24) - (node_size * 3));
 
         pool.deallocate_node(ptr1);
         pool.deallocate_node(ptr2);
         pool.deallocate_node(ptr3);
-        REQUIRE(pool.capacity_left() == 4096 - 16);
+        REQUIRE(pool.capacity_left() == node_size * count - 24);
     }
 
     SECTION("int list")
     {
         constexpr std::size_t l_node_size = sizeof(std::int64_t) + (sizeof(std::uintptr_t) * 2);
+        constexpr std::size_t l_count = 20;
 
-        memory_pool pool(l_node_size, 4096);
+        memory_pool pool(l_node_size, l_count);
         std::list<int, std_allocator<int, memory_pool>> list(pool);
         list.push_back(0);
         list.push_back(1);
@@ -111,8 +115,9 @@ TEST_CASE("memory_pool", "[memory_pool]")
     SECTION("copy int list")
     {
         constexpr std::size_t l_node_size = sizeof(std::int64_t) + (sizeof(std::uintptr_t) * 2);
+        constexpr std::size_t l_count = 30;
 
-        memory_pool pool(l_node_size, 4096);
+        memory_pool pool(l_node_size, l_count);
         std::list<int, std_allocator<int, memory_pool>> list1(pool);
         list1.emplace_back(0);
         list1.emplace_back(1);
@@ -181,9 +186,10 @@ TEST_CASE("memory_pool", "[memory_pool]")
             std::uint64_t b_;
             int c_;
         };
-        constexpr std::size_t um_node_size = 32 + sizeof(std::pair<const int, object>);
+        constexpr std::size_t um_node_size = 16 + sizeof(std::pair<const int, object>);
+        constexpr std::size_t um_count = 100;
 
-        memory_pool pool(um_node_size, 4096);
+        memory_pool pool(um_node_size, um_count);
         std::unordered_map<int, object, std::hash<int>, std::equal_to<int>,
                 std_allocator<std::pair<const int, object>, memory_pool>>
                 map(pool);
