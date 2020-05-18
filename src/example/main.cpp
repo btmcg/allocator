@@ -43,9 +43,8 @@ main(int, char**)
 
     constexpr std::size_t set_node_size = 16 + sizeof(object);
     memory_pool pool3(set_node_size, 1000);
-    std::unordered_set<object, std::hash<object>, std::equal_to<object>,
-            std_allocator<object>>
-            set(pool3);
+    std::unordered_set<object, std::hash<object>, std::equal_to<object>, std_allocator<object>> set(
+            pool3);
 
 
     return EXIT_SUCCESS;

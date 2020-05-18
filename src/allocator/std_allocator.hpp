@@ -91,8 +91,7 @@ public:
 
 private:
     template <typename T1, typename T2>
-    friend bool operator==(
-            std_allocator<T1> const& lhs, std_allocator<T2> const& rhs) noexcept;
+    friend bool operator==(std_allocator<T1> const& lhs, std_allocator<T2> const& rhs) noexcept;
 
     template <typename U>
     friend class std_allocator;
