@@ -96,7 +96,7 @@ TEST_CASE("memory_pool", "[memory_pool]")
         constexpr std::size_t l_count = 20;
 
         memory_pool pool(l_node_size, l_count);
-        std::list<int, std_allocator<int, memory_pool>> list(pool);
+        std::list<int, std_allocator<int>> list(pool);
         list.push_back(0);
         list.push_back(1);
         list.push_back(2);
@@ -118,14 +118,14 @@ TEST_CASE("memory_pool", "[memory_pool]")
         constexpr std::size_t l_count = 30;
 
         memory_pool pool(l_node_size, l_count);
-        std::list<int, std_allocator<int, memory_pool>> list1(pool);
+        std::list<int, std_allocator<int>> list1(pool);
         list1.emplace_back(0);
         list1.emplace_back(1);
         list1.emplace_back(2);
         list1.emplace_back(3);
         list1.emplace_back(4);
 
-        std::list<int, std_allocator<int, memory_pool>> list2 = list1;
+        std::list<int, std_allocator<int>> list2 = list1;
 
         auto l1_itr = list1.cbegin();
         for (int i = 0; i < 5; ++i) {
@@ -191,7 +191,7 @@ TEST_CASE("memory_pool", "[memory_pool]")
 
         memory_pool pool(um_node_size, um_count);
         std::unordered_map<int, object, std::hash<int>, std::equal_to<int>,
-                std_allocator<std::pair<const int, object>, memory_pool>>
+                std_allocator<std::pair<const int, object>>>
                 map(pool);
 
         for (int i = 0; i < 10; ++i)
