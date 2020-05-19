@@ -1,5 +1,5 @@
 #include "allocator/memory_pool.hpp"
-#include "allocator/std_allocator.hpp"
+#include "allocator/mp_allocator.hpp"
 #include <catch2/catch.hpp>
 #include <fmt/format.h>
 #include <cstddef> // std::byte
@@ -43,39 +43,39 @@ private:
     bool c_ = false;
 };
 
-TEST_CASE("std_allocator", "[std_allocator]")
+TEST_CASE("mp_allocator", "[mp_allocator]")
 {
     SECTION("ctor")
     {
         memory_pool pool(sizeof(int), 1000);
-        std_allocator<int> sa(pool);
+        mp_allocator<int> sa(pool);
     }
 
     SECTION("copy ctor")
     {
         memory_pool pool1(sizeof(int), 1000);
-        std_allocator<int> sa1(pool1);
-        std_allocator<int> sa2(sa1);
-        std_allocator<int> sa3 = sa2;
+        mp_allocator<int> sa1(pool1);
+        mp_allocator<int> sa2(sa1);
+        mp_allocator<int> sa3 = sa2;
 
         memory_pool pool2(sizeof(std::uint64_t), 1000);
-        std_allocator<int> sa4(pool2);
+        mp_allocator<int> sa4(pool2);
         sa3 = sa4;
     }
 
     SECTION("prop traits")
     {
         memory_pool pool(sizeof(int), 1000);
-        std_allocator<int> sa1(pool);
+        mp_allocator<int> sa1(pool);
 
-        std_allocator<int> sa2 = sa1.select_on_container_copy_construction();
+        mp_allocator<int> sa2 = sa1.select_on_container_copy_construction();
         REQUIRE(&sa1 != &sa2);
     }
 
     SECTION("alloc-dealloc")
     {
         memory_pool pool(sizeof(int), 1000);
-        std_allocator<int> sa(pool);
+        mp_allocator<int> sa(pool);
 
         int* node_ptr = nullptr;
         node_ptr = sa.allocate(1);
@@ -92,7 +92,7 @@ TEST_CASE("std_allocator", "[std_allocator]")
     SECTION("construct-destroy primitive")
     {
         memory_pool pool(sizeof(int), 1000);
-        std_allocator<int> sa(pool);
+        mp_allocator<int> sa(pool);
 
         int* ptr = nullptr;
         ptr = sa.allocate(1);
@@ -109,7 +109,7 @@ TEST_CASE("std_allocator", "[std_allocator]")
     SECTION("construct-destroy object")
     {
         memory_pool pool(sizeof(object), 1000);
-        std_allocator<object> sa(pool);
+        mp_allocator<object> sa(pool);
 
         object* ptr = nullptr;
         ptr = sa.allocate(1);
@@ -132,7 +132,7 @@ TEST_CASE("std_allocator", "[std_allocator]")
     SECTION("get_allocator")
     {
         memory_pool pool(sizeof(object), 1000);
-        std_allocator<object> sa(pool);
+        mp_allocator<object> sa(pool);
 
         memory_pool& mp_ref = sa.get_allocator();
         REQUIRE(&mp_ref == &pool);
@@ -145,10 +145,10 @@ TEST_CASE("std_allocator", "[std_allocator]")
         memory_pool obj_pool1(sizeof(object), 1000);
         memory_pool obj_pool2(sizeof(object), 1000);
         memory_pool int_pool1(sizeof(int), 1000);
-        std_allocator<object> sa1(obj_pool1);
-        std_allocator<object> sa2(obj_pool1);
-        std_allocator<object> sa3(obj_pool2);
-        std_allocator<object> sa4(int_pool1);
+        mp_allocator<object> sa1(obj_pool1);
+        mp_allocator<object> sa2(obj_pool1);
+        mp_allocator<object> sa3(obj_pool2);
+        mp_allocator<object> sa4(int_pool1);
 
         // equality
         REQUIRE(sa1 == sa2);
