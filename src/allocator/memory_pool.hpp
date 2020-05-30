@@ -14,8 +14,6 @@ class memory_pool
 public:
     using allocator_type = growing_block_allocator<lowlevel_allocator<malloc_allocator>>;
 
-    static constexpr std::size_t min_node_size = free_list::min_element_size;
-
     memory_pool(std::size_t node_size, std::size_t count)
             : arena_(node_size * count)
             , free_list_(node_size)
@@ -84,9 +82,15 @@ public:
     }
 
     std::size_t
+    max_used() const noexcept
+    {
+        return free_list_.max_used();
+    }
+
+    std::size_t
     capacity_left() const noexcept
     {
-        return free_list_.capacity() * node_size();
+        return free_list_.capacity_left() * node_size();
     }
 
     std::size_t
@@ -113,5 +117,3 @@ private:
     memory_arena<growing_block_allocator<lowlevel_allocator<malloc_allocator>>> arena_;
     free_list free_list_;
 };
-
-constexpr std::size_t memory_pool::min_node_size;
