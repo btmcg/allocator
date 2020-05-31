@@ -13,7 +13,6 @@ struct memory_block
 
     memory_block() noexcept;
     memory_block(void* mem, std::size_t s) noexcept;
-    memory_block(void* begin, void* end) noexcept;
 
     bool contains(const void* address) const noexcept;
 };
