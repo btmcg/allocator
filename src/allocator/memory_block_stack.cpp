@@ -10,7 +10,6 @@ is_valid_alignment(std::size_t alignment) noexcept
     return alignment && (alignment & (alignment - 1)) == 0u;
 }
 
-
 // whether or not the pointer is aligned for given alignment
 // alignment must be valid
 bool
@@ -31,13 +30,6 @@ constexpr std::size_t memory_block_stack::node::offset
 
 const std::size_t memory_block_stack::implementation_offset = memory_block_stack::node::offset;
 
-memory_block_stack::memory_block_stack() noexcept
-        : head_(nullptr)
-{}
-
-memory_block_stack::~memory_block_stack() noexcept
-{}
-
 memory_block_stack::memory_block_stack(memory_block_stack&& other) noexcept
         : head_(other.head_)
 {
@@ -50,18 +42,6 @@ memory_block_stack::operator=(memory_block_stack&& other) noexcept
     memory_block_stack tmp(std::move(other));
     swap(*this, tmp);
     return *this;
-}
-
-bool
-memory_block_stack::empty() const noexcept
-{
-    return head_ == nullptr;
-}
-
-void
-swap(memory_block_stack& a, memory_block_stack& b) noexcept
-{
-    std::swap(a.head_, b.head_);
 }
 
 void
@@ -81,38 +61,9 @@ memory_block_stack::pop() noexcept
     return {to_pop, to_pop->usable_size + node::offset};
 }
 
-bool
-memory_block_stack::owns(const void* ptr) const noexcept
+// friend
+void
+swap(memory_block_stack& a, memory_block_stack& b) noexcept
 {
-    auto address = static_cast<const char*>(ptr);
-    for (auto cur = head_; cur; cur = cur->prev) {
-        auto mem = static_cast<char*>(static_cast<void*>(cur));
-        if (address >= mem && address < mem + cur->usable_size)
-            return true;
-    }
-    return false;
-}
-
-std::size_t
-memory_block_stack::size() const noexcept
-{
-    std::size_t res = 0u;
-    for (auto cur = head_; cur; cur = cur->prev)
-        ++res;
-    return res;
-}
-
-memory_block_stack::inserted_mb
-memory_block_stack::top() const noexcept
-{
-    DEBUG_ASSERT(head_);
-    auto mem = static_cast<void*>(head_);
-    return {static_cast<char*>(mem) + node::offset, head_->usable_size};
-}
-
-memory_block_stack::node::node(node* prv, std::size_t sz) noexcept
-        : prev(prv)
-        , usable_size(sz)
-{
-    // empty
+    std::swap(a.head_, b.head_);
 }
