@@ -1,12 +1,12 @@
 #pragma once
 
 #include "common/assert.hpp"
-#include <algorithm>    // std::max
-#include <climits>      // CHAR_BIT
-#include <cstring>      // std::memcpy
-#include <utility>
-#include <cstddef>      // std::max_align_t, std::size_t
+#include <algorithm> // std::max
+#include <climits> // CHAR_BIT
+#include <cstddef> // std::max_align_t, std::size_t
 #include <cstdint>
+#include <cstring> // std::memcpy
+#include <utility>
 
 
 namespace {
