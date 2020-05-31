@@ -1,4 +1,4 @@
-#include "allocator/memory_arena.hpp"
+#include "allocator/memory_block_stack.hpp"
 #include <catch2/catch.hpp>
 #include <fmt/format.h>
 #include <type_traits> // std::aligned_storage
