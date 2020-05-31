@@ -144,21 +144,27 @@ TEST_CASE("posix_allocator", "[posix_allocator]")
         REQUIRE(lla2.max_node_size() == 0xffffffffffffffff);
     }
 
-    // SECTION("allocate non-multiple of 8")
-    // {
-    //     lowlevel_allocator<posix_allocator> lla;
-    //     void* ptr = lla.allocate_node(1, 8);
-    //     REQUIRE(ptr != nullptr);
+    SECTION("allocate non-multiple of 8")
+    {
+        lowlevel_allocator<posix_allocator> lla;
+        void* ptr = lla.allocate_node(1, 8);
+        REQUIRE(ptr != nullptr);
+        lla.deallocate_node(ptr, 1, 8);
 
-    //     ptr = lla.allocate_node(3, 8);
-    //     REQUIRE(ptr != nullptr);
+        ptr = lla.allocate_node(3, 8);
+        REQUIRE(ptr != nullptr);
+        lla.deallocate_node(ptr, 3, 8);
 
-    //     ptr = lla.allocate_node(14, 8);
-    //     REQUIRE(ptr != nullptr);
-    //     ptr = lla.allocate_node(31, 8);
-    //     REQUIRE(ptr != nullptr);
+        ptr = lla.allocate_node(14, 8);
+        REQUIRE(ptr != nullptr);
+        lla.deallocate_node(ptr, 14, 8);
 
-    //     // REQUIRE_THROWS_AS(lla.allocate_node(14, 8), bad_allocation);
-    //     // REQUIRE_THROWS_AS(lla.allocate_node(31, 8), bad_allocation);
-    // }
+        ptr = lla.allocate_node(31, 8);
+        REQUIRE(ptr != nullptr);
+        lla.deallocate_node(ptr, 31, 8);
+
+        // bad alignment
+        REQUIRE_THROWS_AS(lla.allocate_node(14, 3), bad_allocation);
+        REQUIRE_THROWS_AS(lla.allocate_node(31, 15), bad_allocation);
+    }
 }
