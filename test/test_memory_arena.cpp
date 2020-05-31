@@ -145,7 +145,8 @@ TEST_CASE("memory_arena", "[memory_arena]")
 
     SECTION("constexpr")
     {
-        constexpr memory_arena<growing_block_allocator<lowlevel_allocator<malloc_allocator>, 2, 1>> ma(1024);
+        constexpr memory_arena<growing_block_allocator<lowlevel_allocator<malloc_allocator>, 2, 1>>
+                ma(1024);
 
         REQUIRE(ma.size() == 0);
         REQUIRE(ma.next_block_size() == 1024 - 16);

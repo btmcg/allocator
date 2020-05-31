@@ -31,7 +31,8 @@ public:
     constexpr std::size_t next_block_size() const noexcept;
     BlockAllocator& get_allocator() noexcept;
 
-    friend void swap(memory_arena& a, memory_arena& b) noexcept
+    friend void
+    swap(memory_arena& a, memory_arena& b) noexcept
     {
         std::swap(static_cast<BlockAllocator&>(a), static_cast<BlockAllocator&>(b));
         std::swap(a.used_, b.used_);

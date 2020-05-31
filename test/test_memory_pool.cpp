@@ -200,9 +200,4 @@ TEST_CASE("memory_pool", "[memory_pool]")
         for (auto const& itr : map)
             REQUIRE(itr.first == itr.second.get_a());
     }
-
-    SECTION("constexpr")
-    {
-        // constexpr memory_pool pool(16, 20);
-    }
 }

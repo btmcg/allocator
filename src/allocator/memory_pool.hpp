@@ -22,9 +22,9 @@ private:
 
 public:
     inline memory_pool(std::size_t node_size, std::size_t count);
-    inline ~memory_pool() noexcept;
-    inline memory_pool(memory_pool&& other) noexcept;
-    inline memory_pool& operator=(memory_pool&& other) noexcept;
+    ~memory_pool() noexcept = default;
+    inline memory_pool(memory_pool&&) noexcept;
+    inline memory_pool& operator=(memory_pool&&) noexcept;
     inline void* allocate_node();
     inline void* allocate_array(std::size_t n);
     inline void deallocate_node(void* ptr) noexcept;
@@ -46,11 +46,6 @@ memory_pool::memory_pool(std::size_t node_size, std::size_t count)
         , free_list_(node_size)
 {
     allocate_block();
-}
-
-memory_pool::~memory_pool() noexcept
-{
-    // empty
 }
 
 memory_pool::memory_pool(memory_pool&& other) noexcept
@@ -138,5 +133,5 @@ void
 memory_pool::allocate_block()
 {
     memory_block mb = arena_.allocate_block();
-    free_list_.insert(static_cast<char*>(mb.memory), mb.size);
+    free_list_.insert(mb.memory, mb.size);
 }
