@@ -1,23 +1,11 @@
 #pragma once
 
 #include "lowlevel_allocator.hpp"
+#include "memory_block.hpp"
 #include "common/assert.hpp"
 #include <cstdint>
 #include <utility>
 
-
-struct memory_block
-{
-    void* memory = nullptr;
-    std::size_t size = 0;
-
-    memory_block() noexcept;
-    memory_block(void* mem, std::size_t s) noexcept;
-
-    bool contains(const void* address) const noexcept;
-};
-
-/**********************************************************************/
 
 template <typename LLAllocator = lowlevel_allocator<malloc_allocator>, std::uint16_t Num = 2,
         std::uint16_t Den = 1>

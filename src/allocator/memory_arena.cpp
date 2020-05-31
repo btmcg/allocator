@@ -23,30 +23,6 @@ constexpr std::size_t max_alignment = alignof(std::max_align_t);
 
 /**********************************************************************/
 
-memory_block::memory_block() noexcept
-        : memory(nullptr)
-        , size(0)
-{
-    // empty
-}
-
-memory_block::memory_block(void* mem, std::size_t s) noexcept
-        : memory(mem)
-        , size(s)
-{
-    // empty
-}
-
-bool
-memory_block::contains(void const* address) const noexcept
-{
-    auto mem = static_cast<const char*>(memory);
-    auto addr = static_cast<const char*>(address);
-    return addr >= mem && addr < mem + size;
-}
-
-/**********************************************************************/
-
 constexpr std::size_t memory_block_stack::node::div_alignment
         = sizeof(memory_block_stack::node) / max_alignment;
 constexpr std::size_t memory_block_stack::node::mod_offset
