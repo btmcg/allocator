@@ -68,7 +68,8 @@ memory_block_stack::top() const noexcept
         return memory_block(nullptr, 0);
 
     void* mem = static_cast<void*>(head_);
-    return memory_block(static_cast<std::uint8_t*>(mem) + implementation_offset, head_->usable_size);
+    return memory_block(
+            static_cast<std::uint8_t*>(mem) + implementation_offset, head_->usable_size);
 }
 
 constexpr bool
