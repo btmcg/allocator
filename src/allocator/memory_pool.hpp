@@ -1,6 +1,8 @@
 #pragma once
 
 #include "free_list.hpp"
+#include "growing_block_allocator.hpp"
+#include "lowlevel_allocator.hpp"
 #include "memory_arena.hpp"
 #include "common/assert.hpp"
 #include <cstdlib>

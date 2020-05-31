@@ -1,5 +1,4 @@
-#include "allocator/lowlevel_allocator.hpp"
-#include "allocator/memory_arena.hpp"
+#include "allocator/growing_block_allocator.hpp"
 #include <catch2/catch.hpp>
 #include <fmt/format.h>
 #include <cstddef> // std::byte
@@ -97,5 +96,10 @@ TEST_CASE("growing_block_allocator", "[growing_block_allocator]")
 
         gba.deallocate_block(mb1);
         gba.deallocate_block(mb2);
+    }
+
+    SECTION("constexpr")
+    {
+        constexpr growing_block_allocator<> gba(4096);
     }
 }

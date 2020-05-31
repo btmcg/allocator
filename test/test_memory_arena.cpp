@@ -1,3 +1,4 @@
+#include "allocator/growing_block_allocator.hpp"
 #include "allocator/memory_arena.hpp"
 #include <catch2/catch.hpp>
 #include <fmt/format.h>

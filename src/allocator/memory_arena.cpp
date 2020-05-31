@@ -1,5 +1,6 @@
 #include "memory_arena.hpp"
 #include <cstddef> // std::max_align_t
+#include <new> // ::new
 
 
 // whether or not an alignment is valid, i.e. a power of two not zero
