@@ -92,7 +92,7 @@ namespace detail {
     // begin and end are the proxy nodes
     // assumes list is not empty
     // similar to list_search_array()
-    interval
+    inline interval
     list_search_array(std::uint8_t* first, std::size_t bytes_needed, std::size_t node_size) noexcept
     {
         interval i;
