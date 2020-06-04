@@ -123,8 +123,5 @@ TEST_CASE("memory_block_stack", "[memory_block_stack]")
         REQUIRE(mbs.empty());
         REQUIRE(mbs.size() == 0);
         REQUIRE_FALSE(mbs.owns(nullptr));
-        constexpr memory_block mb = mbs.top();
-        REQUIRE(mb.memory == nullptr);
-        REQUIRE(mb.size == 0);
     }
 }

@@ -37,6 +37,6 @@ TEST_CASE("memory_block", "[memory_block]")
         constexpr memory_block mb2(nullptr, sizeof(int));
         REQUIRE(mb2.memory == nullptr);
         REQUIRE(mb2.size == 4);
-        REQUIRE(mb2.contains(nullptr));
+        REQUIRE_FALSE(mb2.contains(nullptr));
     }
 }

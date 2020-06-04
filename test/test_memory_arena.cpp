@@ -151,9 +151,5 @@ TEST_CASE("memory_arena", "[memory_arena]")
         REQUIRE(ma.size() == 0);
         REQUIRE(ma.next_block_size() == 1024 - 16);
         REQUIRE_FALSE(ma.owns(nullptr));
-
-        constexpr memory_block mb = ma.current_block();
-        REQUIRE(mb.memory == nullptr);
-        REQUIRE(mb.size == 0);
     }
 }

@@ -1,6 +1,5 @@
 #pragma once
 
-#include "compiler.hpp"
 #include <fmt/chrono.h>
 #include <cstdint>
 #include <ctime>
@@ -29,6 +28,7 @@ public:
         NsecInUsec = 1'000,
         NsecInMsec = 1'000'000,
         NsecInSec = 1'000'000'000,
+        InitTime = 1'000'000,
     };
 
 public:
@@ -42,7 +42,7 @@ public:
         ::clock_gettime(CLOCK_REALTIME, &begin_ts);
         auto const begin = rdtscp();
 
-        for (auto i = 0; i < 1000000; ++i)
+        for (std::size_t i = 0; i < InitTime; ++i)
             __asm__ __volatile__(""); // don't optimize out this loop
 
         auto const end = rdtscp();
@@ -55,14 +55,14 @@ public:
     }
 
     /// return nanoseconds since epoch
-    static ALWAYS_INLINE std::uint64_t
+    static std::uint64_t
     gettime_nsec()
     {
-        return (rdtscp() - init_ticks_) / ticks_per_nsec_;
+        return (rdtscp() - init_ticks_) / static_cast<std::uint64_t>(ticks_per_nsec_);
     }
 
     /// return current time (nsec since epoch) in the form of a timespec
-    static ALWAYS_INLINE std::timespec
+    static std::timespec
     gettime_ts()
     {
         std::uint64_t const now_nsec = gettime_nsec();
@@ -73,14 +73,14 @@ public:
     }
 
     /// return number of ticks per nsec for this cpu
-    static ALWAYS_INLINE double
+    static double
     get_ticks_per_nsec()
     {
         return ticks_per_nsec_;
     }
 
     /// return nanoseconds since system start
-    static ALWAYS_INLINE std::uint64_t
+    static std::uint64_t
     get_nsecs()
     {
         return rdtscp() / ticks_per_nsec_;
@@ -88,7 +88,7 @@ public:
 
 private:
     /// return number of ticks since system start
-    static ALWAYS_INLINE std::uint64_t
+    static std::uint64_t
     rdtscp()
     {
         std::uint32_t lo_ticks = 0;
@@ -100,7 +100,8 @@ private:
                              : "%ebx", "%ecx" // clobbered registers
         );
 
-        return ((static_cast<std::uint64_t>(hi_ticks) << 32) | lo_ticks);
+        static constexpr std::uint32_t bits = std::numeric_limits<std::uint32_t>::digits;
+        return ((static_cast<std::uint64_t>(hi_ticks) << bits) | lo_ticks);
     }
 
 }; // class tsc
