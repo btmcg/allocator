@@ -1,5 +1,5 @@
 #include "allocator/lowlevel_allocator.hpp"
-#include "common/compiler.hpp"
+#include "util/compiler.hpp"
 #include <catch2/catch.hpp>
 #include <fmt/format.h>
 #include <cstddef> // std::byte

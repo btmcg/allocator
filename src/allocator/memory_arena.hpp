@@ -2,7 +2,7 @@
 
 #include "memory_block.hpp"
 #include "memory_block_stack.hpp"
-#include "common/assert.hpp"
+#include "util/assert.hpp"
 #include <cstdint>
 #include <utility>
 
