@@ -20,3 +20,7 @@ src/example/example
 
 # build system artifacts
 src/version.hpp
+
+# third party code
+third_party/google-benchmark-clang
+third_party/google-benchmark-gcc
