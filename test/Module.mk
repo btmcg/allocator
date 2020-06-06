@@ -1,6 +1,5 @@
 LOCAL_MODULE := test-runner
 LOCAL_CPPFLAGS := -I.
-LOCAL_SOURCE_FILES := $(call rwildcard,$(call get-path),*.cpp)
 LOCAL_LIBRARIES := allocator util
 
 $(call use-catch)
