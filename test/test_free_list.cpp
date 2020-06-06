@@ -2,16 +2,17 @@
 #include <catch2/catch.hpp>
 #include <cstdint>
 
+namespace { // unnamed
+    struct object
+    {
+        int a, b, c;
+    };
 
-struct object
-{
-    int a, b, c;
-};
-
-struct big_object
-{
-    std::uint64_t a, b, c;
-};
+    struct big_object
+    {
+        std::uint64_t a, b, c;
+    };
+} // namespace
 
 TEST_CASE("free_list", "[free_list]")
 {
@@ -168,7 +169,7 @@ TEST_CASE("free_list", "[free_list]")
             objs[i] = static_cast<object*>(fl.allocate());
             REQUIRE(objs[i] != nullptr);
             objs[i]->a = objs[i]->b = objs[i]->c = i;
-            REQUIRE(fl.capacity_left() == static_cast<std::size_t>(num_objs - i - 1));
+            REQUIRE(fl.capacity_left() == num_objs - i - 1);
         }
         REQUIRE(fl.capacity_left() == 0);
 

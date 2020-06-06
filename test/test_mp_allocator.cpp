@@ -6,42 +6,44 @@
 #include <cstdlib> // std::malloc, std::free
 
 
-class object
-{
-public:
-    object(int a, double b, bool c) noexcept
-            : a_(a)
-            , b_(b)
-            , c_(c)
-    {}
-    ~object() noexcept
+namespace { // unnamed
+    class object
     {
-        a_ = 0;
-        b_ = 0.0;
-        c_ = false;
-    }
+    public:
+        object(int a, double b, bool c) noexcept
+                : a_(a)
+                , b_(b)
+                , c_(c)
+        {}
+        ~object() noexcept
+        {
+            a_ = 0;
+            b_ = 0.0;
+            c_ = false;
+        }
 
-    int
-    get_a() const
-    {
-        return a_;
-    }
-    double
-    get_b() const
-    {
-        return b_;
-    }
-    bool
-    get_c() const
-    {
-        return c_;
-    }
+        int
+        get_a() const
+        {
+            return a_;
+        }
+        double
+        get_b() const
+        {
+            return b_;
+        }
+        bool
+        get_c() const
+        {
+            return c_;
+        }
 
-private:
-    int a_ = 0;
-    double b_ = 0.0;
-    bool c_ = false;
-};
+    private:
+        int a_ = 0;
+        double b_ = 0.0;
+        bool c_ = false;
+    };
+} // namespace
 
 TEST_CASE("mp_allocator", "[mp_allocator]")
 {
