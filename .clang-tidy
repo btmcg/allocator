@@ -3,6 +3,7 @@ Checks:                 'clang-diagnostic-*,
                          bugprone-*,
                          cppcoreguidelines-*,
                          misc-*,
+                         modernize-*,
                          performance-*,
                          readability-identifier-naming,
                          -cppcoreguidelines-avoid-c-arrays,
@@ -10,9 +11,10 @@ Checks:                 'clang-diagnostic-*,
                          -cppcoreguidelines-owning-memory,
                          -cppcoreguidelines-pro-bounds-pointer-arithmetic,
                          -cppcoreguidelines-pro-type-reinterpret-cast,
-                         -cppcoreguidelines-pro-type-vararg'
-#Checks:                'modernize-*,
-#                        readability-*'
+                         -cppcoreguidelines-pro-type-vararg,
+                         -modernize-use-nodiscard,
+                         -modernize-use-trailing-return-type'
+#Checks:                'readability-*'
 AnalyzeTemporaryDtors:  false
 FormatStyle:            file
 HeaderFilterRegex:      '.*'
