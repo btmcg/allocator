@@ -10,8 +10,10 @@ Checks:                 'clang-diagnostic-*,
                          -cppcoreguidelines-no-malloc,
                          -cppcoreguidelines-owning-memory,
                          -cppcoreguidelines-pro-bounds-pointer-arithmetic,
+                         -cppcoreguidelines-pro-type-const-cast,
                          -cppcoreguidelines-pro-type-reinterpret-cast,
                          -cppcoreguidelines-pro-type-vararg,
+                         -modernize-avoid-c-arrays,
                          -modernize-use-nodiscard,
                          -modernize-use-trailing-return-type'
 #Checks:                'readability-*'
