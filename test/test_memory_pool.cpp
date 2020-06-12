@@ -7,7 +7,6 @@
 #include <string>
 #include <unordered_map>
 
-
 struct object
 {
     int a, b, c;
@@ -61,33 +60,33 @@ TEST_CASE("memory_pool", "[memory_pool]")
 
     SECTION("alloc-dealloc")
     {
-        constexpr std::size_t node_size = sizeof(object);
+        constexpr std::size_t node_size = sizeof(object) + 4; // to make size 8-byte aligned
         constexpr std::size_t count = 100;
 
         memory_pool pool(node_size, count);
         REQUIRE(pool.node_size() == node_size);
-        REQUIRE(pool.capacity_left() == node_size * count - 24);
+        REQUIRE(pool.capacity_left() == node_size * count - 16);
         REQUIRE(pool.next_capacity() == (node_size * count * 2) - 16);
 
         object* ptr1 = static_cast<object*>(pool.allocate_node());
         ptr1->a = ptr1->b = ptr1->c = 1;
-        REQUIRE(pool.capacity_left() == (node_size * count - 24) - node_size);
+        REQUIRE(pool.capacity_left() == (node_size * count - 16) - node_size);
 
         pool.deallocate_node(ptr1);
-        REQUIRE(pool.capacity_left() == node_size * count - 24);
+        REQUIRE(pool.capacity_left() == node_size * count - 16);
 
         object* ptr2 = static_cast<object*>(pool.allocate_node());
         REQUIRE(ptr1 == ptr2);
-        REQUIRE(pool.capacity_left() == (node_size * count - 24) - node_size);
+        REQUIRE(pool.capacity_left() == (node_size * count - 16) - node_size);
 
         ptr1 = static_cast<object*>(pool.allocate_node());
         object* ptr3 = static_cast<object*>(pool.allocate_node());
-        REQUIRE(pool.capacity_left() == (node_size * count - 24) - (node_size * 3));
+        REQUIRE(pool.capacity_left() == (node_size * count - 16) - (node_size * 3));
 
         pool.deallocate_node(ptr1);
         pool.deallocate_node(ptr2);
         pool.deallocate_node(ptr3);
-        REQUIRE(pool.capacity_left() == node_size * count - 24);
+        REQUIRE(pool.capacity_left() == node_size * count - 16);
     }
 
     SECTION("int list")

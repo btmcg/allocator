@@ -23,14 +23,15 @@ TEST_CASE("free_list", "[free_list]")
     {
         {
             free_list fl(sizeof(object));
-            REQUIRE(fl.node_size() == sizeof(object));
-            REQUIRE(fl.alignment() == 8);
+            // node size is increased to 16 so that it is 8-byte aligned
+            REQUIRE(fl.node_size() == sizeof(object) + 4);
             REQUIRE(fl.capacity_left() == 0);
             REQUIRE(fl.used() == 0);
             REQUIRE(fl.empty());
+
             constexpr std::size_t num_objs = 5;
-            void* mem = std::malloc(sizeof(object) * num_objs);
-            fl.insert(mem, sizeof(object) * num_objs);
+            void* mem = std::malloc(fl.node_size() * num_objs);
+            fl.insert(mem, fl.node_size() * num_objs);
             REQUIRE(fl.capacity_left() == num_objs);
             REQUIRE(fl.used() == 0);
             REQUIRE_FALSE(fl.empty());
@@ -40,7 +41,6 @@ TEST_CASE("free_list", "[free_list]")
         {
             free_list fl(sizeof(big_object));
             REQUIRE(fl.node_size() == sizeof(big_object));
-            REQUIRE(fl.alignment() == 16);
             REQUIRE(fl.capacity_left() == 0);
             REQUIRE(fl.used() == 0);
             REQUIRE(fl.empty());
@@ -57,22 +57,21 @@ TEST_CASE("free_list", "[free_list]")
     SECTION("move ctor")
     {
         free_list fl1(sizeof(object));
-        REQUIRE(fl1.node_size() == sizeof(object));
-        REQUIRE(fl1.alignment() == 8);
+        // node size is increased to 16 so that it is 8-byte aligned
+        REQUIRE(fl1.node_size() == sizeof(object) + 4);
         REQUIRE(fl1.capacity_left() == 0);
         REQUIRE(fl1.used() == 0);
         REQUIRE(fl1.empty());
 
         constexpr std::size_t num_objs = 5;
-        void* mem = std::malloc(sizeof(object) * num_objs);
-        fl1.insert(mem, sizeof(object) * num_objs);
+        void* mem = std::malloc(fl1.node_size() * num_objs);
+        fl1.insert(mem, fl1.node_size() * num_objs);
         REQUIRE(fl1.capacity_left() == num_objs);
         REQUIRE(fl1.used() == 0);
         REQUIRE_FALSE(fl1.empty());
 
         free_list fl2(std::move(fl1));
-        REQUIRE(fl2.node_size() == sizeof(object));
-        REQUIRE(fl2.alignment() == 8);
+        REQUIRE(fl2.node_size() == sizeof(object) + 4);
         REQUIRE(fl2.capacity_left() == num_objs);
         REQUIRE(fl2.used() == 0);
         REQUIRE_FALSE(fl2.empty());
@@ -83,29 +82,27 @@ TEST_CASE("free_list", "[free_list]")
     SECTION("move assignment")
     {
         free_list fl1(sizeof(object));
-        REQUIRE(fl1.node_size() == sizeof(object));
-        REQUIRE(fl1.alignment() == 8);
+        // node size is increased to 16 so that it is 8-byte aligned
+        REQUIRE(fl1.node_size() == sizeof(object) + 4);
         REQUIRE(fl1.capacity_left() == 0);
         REQUIRE(fl1.used() == 0);
         REQUIRE(fl1.empty());
 
         constexpr std::size_t num_objs = 5;
-        void* mem = std::malloc(sizeof(object) * num_objs);
-        fl1.insert(mem, sizeof(object) * num_objs);
+        void* mem = std::malloc(fl1.node_size() * num_objs);
+        fl1.insert(mem, fl1.node_size() * num_objs);
         REQUIRE(fl1.capacity_left() == num_objs);
         REQUIRE(fl1.used() == 0);
         REQUIRE_FALSE(fl1.empty());
 
         free_list fl2(sizeof(big_object));
         REQUIRE(fl2.node_size() == sizeof(big_object));
-        REQUIRE(fl2.alignment() == 16);
         REQUIRE(fl2.capacity_left() == 0);
         REQUIRE(fl2.used() == 0);
         REQUIRE(fl2.empty());
 
         fl2 = std::move(fl1);
-        REQUIRE(fl2.node_size() == sizeof(object));
-        REQUIRE(fl2.alignment() == 8);
+        REQUIRE(fl2.node_size() == sizeof(object) + 4);
         REQUIRE(fl2.capacity_left() == num_objs);
         REQUIRE(fl2.used() == 0);
         REQUIRE_FALSE(fl2.empty());
@@ -116,24 +113,23 @@ TEST_CASE("free_list", "[free_list]")
     SECTION("swap")
     {
         free_list fl1(sizeof(object));
-        REQUIRE(fl1.node_size() == sizeof(object));
-        REQUIRE(fl1.alignment() == 8);
+        // node size is increased to 16 so that it is 8-byte aligned
+        REQUIRE(fl1.node_size() == sizeof(object) + 4);
         REQUIRE(fl1.capacity_left() == 0);
         REQUIRE(fl1.empty());
         constexpr std::size_t num_objs_1 = 10;
-        void* mem1 = std::malloc(sizeof(object) * num_objs_1);
-        fl1.insert(mem1, sizeof(object) * num_objs_1);
+        void* mem1 = std::malloc(fl1.node_size() * num_objs_1);
+        fl1.insert(mem1, fl1.node_size() * num_objs_1);
         REQUIRE(fl1.capacity_left() == num_objs_1);
         REQUIRE_FALSE(fl1.empty());
 
         free_list fl2(sizeof(big_object));
         REQUIRE(fl2.node_size() == sizeof(big_object));
-        REQUIRE(fl2.alignment() == 16);
         REQUIRE(fl2.capacity_left() == 0);
         REQUIRE(fl2.empty());
         constexpr std::size_t num_objs_2 = 5;
-        void* mem2 = std::malloc(sizeof(big_object) * num_objs_2);
-        fl2.insert(mem2, sizeof(big_object) * num_objs_2);
+        void* mem2 = std::malloc(fl2.node_size() * num_objs_2);
+        fl2.insert(mem2, fl2.node_size() * num_objs_2);
         REQUIRE(fl2.capacity_left() == num_objs_2);
         REQUIRE_FALSE(fl2.empty());
 
@@ -141,13 +137,11 @@ TEST_CASE("free_list", "[free_list]")
 
         // fl1 is now free_list of big_objects
         REQUIRE(fl1.node_size() == sizeof(big_object));
-        REQUIRE(fl1.alignment() == 16);
         REQUIRE(fl1.capacity_left() == num_objs_2);
         REQUIRE_FALSE(fl1.empty());
 
         // fl2 is now free_list of objects
-        REQUIRE(fl2.node_size() == sizeof(object));
-        REQUIRE(fl2.alignment() == 8);
+        REQUIRE(fl2.node_size() == sizeof(object) + 4);
         REQUIRE(fl2.capacity_left() == num_objs_1);
         REQUIRE_FALSE(fl2.empty());
 
@@ -158,9 +152,9 @@ TEST_CASE("free_list", "[free_list]")
     SECTION("alloc-dealloc node")
     {
         constexpr std::size_t num_objs = 5;
-        void* mem = std::malloc(sizeof(object) * num_objs);
+        void* mem = std::malloc((sizeof(object) + 4) * num_objs);
 
-        free_list fl(sizeof(object), mem, sizeof(object) * num_objs);
+        free_list fl(sizeof(object), mem, (sizeof(object) + 4) * num_objs);
         REQUIRE(fl.capacity_left() == num_objs);
 
         // allocate 5 objects and set values
@@ -216,7 +210,6 @@ TEST_CASE("free_list", "[free_list]")
 
         free_list fl(sizeof(big_object));
         REQUIRE(fl.node_size() == sizeof(big_object));
-        REQUIRE(fl.alignment() == 16);
         REQUIRE(fl.capacity_left() == 0);
         REQUIRE(fl.empty());
 
