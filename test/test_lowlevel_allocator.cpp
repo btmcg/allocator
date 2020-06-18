@@ -168,3 +168,23 @@ TEST_CASE("posix_allocator", "[posix_allocator]")
         REQUIRE_THROWS_AS(lla.allocate_node(31, 15), bad_allocation);
     }
 }
+
+TEST_CASE("mmap_allocator", "[mmap_allocator]")
+{
+    SECTION("alloc-dealloc")
+    {
+        lowlevel_allocator<mmap_allocator> lla;
+        void* ptr = lla.allocate_node(32, 8);
+        REQUIRE(ptr != nullptr);
+        lla.deallocate_node(ptr, 32, 8);
+        ptr = nullptr;
+        REQUIRE(lla.max_node_size() == 0xffffffffffffffff);
+
+        lowlevel_allocator<mmap_allocator> lla2 = std::move(lla);
+        ptr = lla2.allocate_node(64, 8);
+        REQUIRE(ptr != nullptr);
+        lla2.deallocate_node(ptr, 64, 8);
+        ptr = nullptr;
+        REQUIRE(lla2.max_node_size() == 0xffffffffffffffff);
+    }
+}

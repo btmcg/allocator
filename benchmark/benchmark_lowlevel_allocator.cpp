@@ -78,3 +78,23 @@ posix_allocator_bm(benchmark::State& state)
         alloc.deallocate_node(itr, 0, alignment);
 }
 BENCHMARK(posix_allocator_bm);
+
+static void
+mmap_allocator_bm(benchmark::State& state)
+{
+    std::random_device dev;
+    std::mt19937 rng(dev());
+    std::uniform_int_distribution<std::mt19937::result_type> dist(DistMin, DistMax);
+
+    lowlevel_allocator<mmap_allocator> alloc;
+    std::unordered_set<int*> set;
+    constexpr std::size_t alignment = 8;
+
+    for (auto _ : state) // NOLINT
+        set.emplace(
+                static_cast<int*>(alloc.allocate_node(make_multiple_of_8(dist(rng)), alignment)));
+
+    for (auto& itr : set)
+        alloc.deallocate_node(itr, 0, alignment);
+}
+BENCHMARK(mmap_allocator_bm);
