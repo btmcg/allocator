@@ -1,8 +1,13 @@
-allocator
+Allocator
 =========
 
+A work-in-progress memory pool. The goal here is to write a seamless
+drop-in replacement for ``std::allocator`` so that all standard
+containers can be used without modification. For usage, see
+``src/example``.
 
-initial repo set up
+
+Initial repo set up
 -------------------
 
 .. code-block::
