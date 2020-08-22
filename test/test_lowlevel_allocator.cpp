@@ -57,12 +57,10 @@ TEST_CASE("lowlevel_allocator", "[lowlevel_allocator]")
     SECTION("dummy")
     {
         lowlevel_allocator<dummy_functor> lla;
-        REQUIRE_THROWS_AS(lla.allocate_node(32, 32), bad_allocation);
         lla.deallocate_node(nullptr, 32, 32);
         REQUIRE(lla.max_node_size() == 0xffffffffffffffff);
 
         lowlevel_allocator<dummy_functor> lla2 = std::move(lla);
-        REQUIRE_THROWS_AS(lla2.allocate_node(32, 32), bad_allocation);
         lla2.deallocate_node(nullptr, 32, 32);
         REQUIRE(lla2.max_node_size() == 0xffffffffffffffff);
     }
@@ -162,10 +160,6 @@ TEST_CASE("posix_allocator", "[posix_allocator]")
         ptr = lla.allocate_node(31, 8);
         REQUIRE(ptr != nullptr);
         lla.deallocate_node(ptr, 31, 8);
-
-        // bad alignment
-        REQUIRE_THROWS_AS(lla.allocate_node(14, 3), bad_allocation);
-        REQUIRE_THROWS_AS(lla.allocate_node(31, 15), bad_allocation);
     }
 }
 
