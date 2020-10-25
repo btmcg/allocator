@@ -23,5 +23,4 @@ test/test-runner
 src/example/example
 
 # third party code that is built and installed
-third_party/google-benchmark-clang
-third_party/google-benchmark-gcc
+third_party/google-benchmark
