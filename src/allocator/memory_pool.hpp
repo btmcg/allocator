@@ -3,7 +3,6 @@
 #include "detail.hpp"
 #include "free_list.hpp"
 #include "growing_block_allocator.hpp"
-#include "lowlevel_allocator.hpp"
 #include "memory_arena.hpp"
 #include "util/assert.hpp"
 #include <cstdlib>
@@ -16,7 +15,7 @@
 class memory_pool
 {
 public:
-    using allocator_type = growing_block_allocator<lowlevel_allocator>;
+    using allocator_type = growing_block_allocator<>;
 
 private:
     memory_arena<allocator_type> arena_;
