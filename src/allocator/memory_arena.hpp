@@ -1,5 +1,6 @@
 #pragma once
 
+#include "block_allocator.hpp"
 #include "memory_block.hpp"
 #include "memory_block_stack.hpp"
 #include "util/assert.hpp"
@@ -7,121 +8,93 @@
 #include <utility>
 
 
-template <typename BlockAllocator>
-class memory_arena : private BlockAllocator
+class memory_arena
 {
 private:
+    block_allocator alloc_;
     memory_block_stack used_;
 
 public:
-    constexpr explicit memory_arena(std::size_t block_size) noexcept;
+    constexpr explicit memory_arena(std::size_t block_size) noexcept
+            : alloc_(block_size)
+            , used_()
+    {
+        // empty
+    }
 
-    /// Deallocates all memory blocks that where requested back to the
-    /// BlockAllocator.
-    constexpr ~memory_arena() noexcept;
+    /// Returns all memory blocks back to the underlying allocator
+    constexpr ~memory_arena() noexcept
+    {
+        while (!used_.empty())
+            alloc_.deallocate_block(used_.pop());
+    }
 
     memory_arena(memory_arena const&) noexcept = delete;
-    memory_arena(memory_arena&&) noexcept;
-
     memory_arena& operator=(memory_arena const&) noexcept = delete;
-    memory_arena& operator=(memory_arena&&) noexcept;
 
-    memory_block allocate_block() noexcept;
-    memory_block current_block() const noexcept;
-    void deallocate_block() noexcept;
-    constexpr bool owns(void const* ptr) const noexcept;
-    constexpr std::size_t size() const noexcept;
-    constexpr std::size_t next_block_size() const noexcept;
-    BlockAllocator& get_allocator() noexcept;
+    memory_arena(memory_arena&& other) noexcept
+            : alloc_(std::move(other.alloc_))
+            , used_(std::move(other.used_))
+    {
+        // empty
+    }
+
+    memory_arena&
+    operator=(memory_arena&& rhs) noexcept
+    {
+        alloc_ = std::move(rhs.alloc_);
+        used_ = std::move(rhs.used_);
+        return *this;
+    }
+
+    memory_block
+    allocate_block() noexcept
+    {
+        used_.push(alloc_.allocate_block());
+        DEBUG_ASSERT(!used_.empty());
+        return used_.top();
+    }
+
+    memory_block
+    current_block() const noexcept
+    {
+        return used_.top();
+    }
+
+    void
+    deallocate_block() noexcept
+    {
+        alloc_.deallocate_block(used_.pop());
+    }
+
+    constexpr bool
+    owns(void const* ptr) const noexcept
+    {
+        return used_.owns(ptr);
+    }
+
+    constexpr std::size_t
+    size() const noexcept
+    {
+        return used_.size();
+    }
+
+    constexpr std::size_t
+    next_block_size() const noexcept
+    {
+        return alloc_.next_block_size() - memory_block_stack::implementation_offset;
+    }
+
+    block_allocator&
+    get_allocator() noexcept
+    {
+        return alloc_;
+    }
 
     friend void
     swap(memory_arena& a, memory_arena& b) noexcept
     {
-        std::swap(static_cast<BlockAllocator&>(a), static_cast<BlockAllocator&>(b));
+        std::swap(a.alloc_, b.alloc_);
         std::swap(a.used_, b.used_);
     }
 };
-
-/**********************************************************************/
-
-template <typename BlockAllocator>
-constexpr memory_arena<BlockAllocator>::memory_arena(std::size_t block_size) noexcept
-        : BlockAllocator(block_size)
-{
-    // empty
-}
-
-template <typename BlockAllocator>
-constexpr memory_arena<BlockAllocator>::~memory_arena() noexcept
-{
-    while (!used_.empty())
-        BlockAllocator::deallocate_block(used_.pop());
-}
-
-template <typename BlockAllocator>
-memory_arena<BlockAllocator>::memory_arena(memory_arena&& other) noexcept
-        : BlockAllocator(std::move(other))
-        , used_(std::move(other.used_))
-{
-    // empty
-}
-
-template <typename BlockAllocator>
-memory_arena<BlockAllocator>&
-memory_arena<BlockAllocator>::operator=(memory_arena&& other) noexcept
-{
-    memory_arena tmp(std::move(other));
-    swap(*this, tmp);
-    return *this;
-}
-
-template <typename BlockAllocator>
-memory_block
-memory_arena<BlockAllocator>::allocate_block() noexcept
-{
-    used_.push(BlockAllocator::allocate_block());
-    DEBUG_ASSERT(!used_.empty());
-    return used_.top();
-}
-
-template <typename BlockAllocator>
-memory_block
-memory_arena<BlockAllocator>::current_block() const noexcept
-{
-    return used_.top();
-}
-
-template <typename BlockAllocator>
-void
-memory_arena<BlockAllocator>::deallocate_block() noexcept
-{
-    BlockAllocator::deallocate_block(used_.pop());
-}
-
-template <typename BlockAllocator>
-constexpr bool
-memory_arena<BlockAllocator>::owns(const void* ptr) const noexcept
-{
-    return used_.owns(ptr);
-}
-
-template <typename BlockAllocator>
-constexpr std::size_t
-memory_arena<BlockAllocator>::size() const noexcept
-{
-    return used_.size();
-}
-
-template <typename BlockAllocator>
-constexpr std::size_t
-memory_arena<BlockAllocator>::next_block_size() const noexcept
-{
-    return BlockAllocator::next_block_size() - memory_block_stack::implementation_offset;
-}
-
-template <typename BlockAllocator>
-BlockAllocator&
-memory_arena<BlockAllocator>::get_allocator() noexcept
-{
-    return *this;
-}

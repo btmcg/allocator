@@ -1,8 +1,8 @@
 #pragma once
 
+#include "block_allocator.hpp"
 #include "detail.hpp"
 #include "free_list.hpp"
-#include "growing_block_allocator.hpp"
 #include "memory_arena.hpp"
 #include "util/assert.hpp"
 #include <cstdlib>
@@ -14,11 +14,8 @@
 
 class memory_pool
 {
-public:
-    using allocator_type = growing_block_allocator<>;
-
 private:
-    memory_arena<allocator_type> arena_;
+    memory_arena arena_;
     free_list free_list_;
 
 public:
@@ -36,7 +33,7 @@ public:
     inline std::size_t max_used() const noexcept;
     inline std::size_t capacity_left() const noexcept;
     inline std::size_t next_capacity() const noexcept;
-    inline allocator_type& get_allocator() noexcept;
+    inline block_allocator& get_allocator() noexcept;
 
 private:
     inline void allocate_block() noexcept;
@@ -124,7 +121,7 @@ memory_pool::next_capacity() const noexcept
     return arena_.next_block_size();
 }
 
-memory_pool::allocator_type&
+block_allocator&
 memory_pool::get_allocator() noexcept
 {
     return arena_.get_allocator();

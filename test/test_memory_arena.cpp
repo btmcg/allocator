@@ -1,4 +1,3 @@
-#include "allocator/growing_block_allocator.hpp"
 #include "allocator/memory_arena.hpp"
 #include <catch2/catch.hpp>
 #include <fmt/format.h>
@@ -10,13 +9,13 @@ TEST_CASE("memory_arena", "[memory_arena]")
 {
     SECTION("ctor")
     {
-        memory_arena<growing_block_allocator<>> ma(1024);
+        memory_arena ma(1024);
         REQUIRE(ma.size() == 0);
     }
 
     SECTION("move ctor")
     {
-        memory_arena<growing_block_allocator<>> ma1(1024);
+        memory_arena ma1(1024);
         REQUIRE(ma1.size() == 0);
 
         memory_block mb = ma1.allocate_block();
@@ -26,7 +25,7 @@ TEST_CASE("memory_arena", "[memory_arena]")
         REQUIRE(ma1.current_block().size == mb.size);
         REQUIRE(ma1.size() == 1);
 
-        memory_arena<growing_block_allocator<>> ma2(std::move(ma1));
+        memory_arena ma2(std::move(ma1));
         REQUIRE(ma2.current_block().memory == mb.memory);
         REQUIRE(ma2.current_block().size == mb.size);
         REQUIRE(ma2.size() == 1);
@@ -36,7 +35,7 @@ TEST_CASE("memory_arena", "[memory_arena]")
 
     SECTION("move assignment")
     {
-        memory_arena<growing_block_allocator<>> ma1(1024);
+        memory_arena ma1(1024);
         REQUIRE(ma1.size() == 0);
 
         memory_block mb = ma1.allocate_block();
@@ -46,7 +45,7 @@ TEST_CASE("memory_arena", "[memory_arena]")
         REQUIRE(ma1.current_block().size == mb.size);
         REQUIRE(ma1.size() == 1);
 
-        memory_arena<growing_block_allocator<>> ma2(0);
+        memory_arena ma2(0);
         ma2 = std::move(ma1);
         REQUIRE(ma2.current_block().memory == mb.memory);
         REQUIRE(ma2.current_block().size == mb.size);
@@ -57,7 +56,7 @@ TEST_CASE("memory_arena", "[memory_arena]")
 
     SECTION("swap")
     {
-        memory_arena<growing_block_allocator<>> ma1(1024);
+        memory_arena ma1(1024);
         REQUIRE(ma1.size() == 0);
 
         memory_block mb = ma1.allocate_block();
@@ -67,7 +66,7 @@ TEST_CASE("memory_arena", "[memory_arena]")
         REQUIRE(ma1.current_block().size == mb.size);
         REQUIRE(ma1.size() == 1);
 
-        memory_arena<growing_block_allocator<>> ma2(0);
+        memory_arena ma2(0);
         REQUIRE(ma2.size() == 0);
 
         swap(ma1, ma2);
@@ -85,7 +84,7 @@ TEST_CASE("memory_arena", "[memory_arena]")
     {
         constexpr std::size_t block_size = 1024;
 
-        memory_arena<growing_block_allocator<>> ma(block_size);
+        memory_arena ma(block_size);
         REQUIRE(ma.size() == 0);
 
         memory_block mb1 = ma.allocate_block();
@@ -120,7 +119,7 @@ TEST_CASE("memory_arena", "[memory_arena]")
     {
         constexpr std::size_t block_size = 1024;
 
-        memory_arena<growing_block_allocator<>> ma(block_size);
+        memory_arena ma(block_size);
         REQUIRE(ma.size() == 0);
 
         memory_block mb = ma.allocate_block();
@@ -145,7 +144,7 @@ TEST_CASE("memory_arena", "[memory_arena]")
 
     SECTION("constexpr")
     {
-        constexpr memory_arena<growing_block_allocator<2, 1>> ma(1024);
+        constexpr memory_arena ma(1024);
 
         REQUIRE(ma.size() == 0);
         REQUIRE(ma.next_block_size() == 1024 - 16);
