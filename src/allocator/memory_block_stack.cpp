@@ -18,16 +18,6 @@ is_aligned(void* ptr, std::size_t alignment) noexcept
     return address % alignment == 0u;
 }
 
-constexpr std::size_t max_alignment = alignof(std::max_align_t);
-constexpr std::size_t memory_block_stack::node::div_alignment
-        = sizeof(memory_block_stack::node) / max_alignment;
-constexpr std::size_t memory_block_stack::node::mod_offset
-        = sizeof(memory_block_stack::node) % max_alignment != 0u;
-constexpr std::size_t memory_block_stack::node::offset
-        = (div_alignment + mod_offset) * max_alignment;
-
-const std::size_t memory_block_stack::implementation_offset = memory_block_stack::node::offset;
-
 memory_block_stack::memory_block_stack(memory_block_stack&& other) noexcept
         : head_(other.head_)
 {
@@ -45,10 +35,10 @@ memory_block_stack::operator=(memory_block_stack&& other) noexcept
 void
 memory_block_stack::push(allocated_mb block) noexcept
 {
-    DEBUG_ASSERT(is_aligned(block.memory, max_alignment));
+    DEBUG_ASSERT(is_aligned(block.memory, MaxAlignment));
     auto n = reinterpret_cast<node*>(block.memory);
     n->prev = head_;
-    n->usable_size = block.size - node::offset;
+    n->usable_size = block.size - Offset;
     head_ = n;
 }
 
@@ -58,7 +48,7 @@ memory_block_stack::pop() noexcept
     DEBUG_ASSERT(head_ != nullptr);
     node* to_pop = head_;
     head_ = head_->prev;
-    return {to_pop, to_pop->usable_size + node::offset};
+    return {to_pop, to_pop->usable_size + Offset};
 }
 
 // friend

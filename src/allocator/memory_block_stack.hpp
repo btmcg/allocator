@@ -23,11 +23,16 @@ private:
         {
             // empty
         }
-
-        static const std::size_t div_alignment;
-        static const std::size_t mod_offset;
-        static const std::size_t offset;
     };
+
+private:
+    static constexpr std::size_t MaxAlignment = alignof(std::max_align_t);
+    static constexpr std::size_t DivAlignment = sizeof(node) / MaxAlignment;
+    static constexpr std::size_t ModOffset = (sizeof(node) % MaxAlignment) != 0u;
+
+public:
+    /// how much an inserted block is smaller
+    static constexpr std::size_t Offset = (DivAlignment + ModOffset) * MaxAlignment;
 
 private:
     node* head_ = nullptr;
@@ -46,9 +51,6 @@ public:
 
     /// the inserted block slightly smaller to allow for the fixup value
     using inserted_mb = memory_block;
-
-    /// how much an inserted block is smaller
-    static const std::size_t implementation_offset;
 
     void push(allocated_mb block) noexcept;
     allocated_mb pop() noexcept;
@@ -70,8 +72,7 @@ memory_block_stack::top() const noexcept
 {
     DEBUG_ASSERT(!empty());
     void* mem = static_cast<void*>(head_);
-    return memory_block(
-            static_cast<std::uint8_t*>(mem) + implementation_offset, head_->usable_size);
+    return memory_block(static_cast<std::uint8_t*>(mem) + Offset, head_->usable_size);
 }
 
 constexpr bool

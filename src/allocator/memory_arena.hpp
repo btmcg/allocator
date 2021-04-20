@@ -29,23 +29,10 @@ public:
             alloc_.deallocate_block(used_.pop());
     }
 
-    memory_arena(memory_arena const&) noexcept = delete;
-    memory_arena& operator=(memory_arena const&) noexcept = delete;
-
-    memory_arena(memory_arena&& other) noexcept
-            : alloc_(std::move(other.alloc_))
-            , used_(std::move(other.used_))
-    {
-        // empty
-    }
-
-    memory_arena&
-    operator=(memory_arena&& rhs) noexcept
-    {
-        alloc_ = std::move(rhs.alloc_);
-        used_ = std::move(rhs.used_);
-        return *this;
-    }
+    // memory_arena(memory_arena const&) noexcept = default;
+    // memory_arena& operator=(memory_arena const&) noexcept = default;
+    memory_arena(memory_arena&& other) noexcept = default;
+    memory_arena& operator=(memory_arena&& rhs) noexcept = default;
 
     memory_block
     allocate_block() noexcept
@@ -82,7 +69,7 @@ public:
     constexpr std::size_t
     next_block_size() const noexcept
     {
-        return alloc_.next_block_size() - memory_block_stack::implementation_offset;
+        return alloc_.next_block_size() - memory_block_stack::Offset;
     }
 
     block_allocator&
