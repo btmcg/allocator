@@ -69,7 +69,7 @@ TEST_CASE("growing_block_allocator", "[growing_block_allocator]")
         REQUIRE(gba1.growth_factor() == Approx(2.0));
         REQUIRE(gba1.next_block_size() == 4096);
 
-        growing_block_allocator<lowlevel_allocator<malloc_allocator>, 3, 2> gba2(1024);
+        growing_block_allocator<lowlevel_allocator, 3, 2> gba2(1024);
         REQUIRE(gba2.growth_factor() == Approx(1.5));
         REQUIRE(gba2.next_block_size() == 1024);
     }
@@ -96,7 +96,7 @@ TEST_CASE("growing_block_allocator", "[growing_block_allocator]")
 
     SECTION("constexpr")
     {
-        constexpr growing_block_allocator<lowlevel_allocator<malloc_allocator>, 2, 1> gba(1024);
+        constexpr growing_block_allocator<lowlevel_allocator, 2, 1> gba(1024);
         constexpr memory_block mb;
         gba.deallocate_block(mb);
         REQUIRE(gba.next_block_size() == 1024);

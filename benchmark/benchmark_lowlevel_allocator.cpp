@@ -26,7 +26,7 @@ malloc_allocator_bm(benchmark::State& state)
     std::mt19937 rng(dev());
     std::uniform_int_distribution<std::mt19937::result_type> dist(DistMin, DistMax);
 
-    lowlevel_allocator<malloc_allocator> alloc;
+    lowlevel_allocator alloc;
     std::unordered_set<int*> set;
     constexpr std::size_t alignment = 8;
 
@@ -46,7 +46,7 @@ new_allocator_bm(benchmark::State& state)
     std::mt19937 rng(dev());
     std::uniform_int_distribution<std::mt19937::result_type> dist(DistMin, DistMax);
 
-    lowlevel_allocator<new_allocator> alloc;
+    lowlevel_allocator alloc;
     std::unordered_set<int*> set;
     constexpr std::size_t alignment = 8;
 
@@ -66,7 +66,7 @@ posix_allocator_bm(benchmark::State& state)
     std::mt19937 rng(dev());
     std::uniform_int_distribution<std::mt19937::result_type> dist(DistMin, DistMax);
 
-    lowlevel_allocator<posix_allocator> alloc;
+    lowlevel_allocator alloc;
     std::unordered_set<int*> set;
     constexpr std::size_t alignment = 8;
 
@@ -86,7 +86,7 @@ mmap_allocator_bm(benchmark::State& state)
     std::mt19937 rng(dev());
     std::uniform_int_distribution<std::mt19937::result_type> dist(DistMin, DistMax);
 
-    lowlevel_allocator<mmap_allocator> alloc;
+    lowlevel_allocator alloc;
     std::unordered_set<int*> set;
     constexpr std::size_t alignment = 8;
 

@@ -6,8 +6,7 @@
 #include <cstdint>
 
 
-template <typename LLAllocator = lowlevel_allocator<malloc_allocator>, std::uint16_t Num = 2,
-        std::uint16_t Den = 1>
+template <typename LLAllocator = lowlevel_allocator, std::uint16_t Num = 2, std::uint16_t Den = 1>
 class growing_block_allocator : private LLAllocator
 {
     static_assert(static_cast<float>(Num) / Den >= 1.0, "invalid growth factor");

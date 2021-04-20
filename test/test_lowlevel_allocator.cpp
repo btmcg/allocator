@@ -56,25 +56,25 @@ TEST_CASE("lowlevel_allocator", "[lowlevel_allocator]")
 {
     SECTION("dummy")
     {
-        lowlevel_allocator<dummy_functor> lla;
+        lowlevel_allocator lla;
         lla.deallocate_node(nullptr, 32, 32);
         REQUIRE(lla.max_node_size() == 0xffffffffffffffff);
 
-        lowlevel_allocator<dummy_functor> lla2 = std::move(lla);
+        lowlevel_allocator lla2 = std::move(lla);
         lla2.deallocate_node(nullptr, 32, 32);
         REQUIRE(lla2.max_node_size() == 0xffffffffffffffff);
     }
 
     SECTION("malloc")
     {
-        lowlevel_allocator<malloc_functor> lla;
+        lowlevel_allocator lla;
         void* ptr = lla.allocate_node(32, 32);
         REQUIRE(ptr != nullptr);
         lla.deallocate_node(ptr, 32, 32);
         ptr = nullptr;
         REQUIRE(lla.max_node_size() == 0xffffffffffffffff);
 
-        lowlevel_allocator<malloc_functor> lla2 = std::move(lla);
+        lowlevel_allocator lla2 = std::move(lla);
         ptr = lla2.allocate_node(64, 32);
         REQUIRE(ptr != nullptr);
         lla2.deallocate_node(ptr, 64, 32);
@@ -87,14 +87,14 @@ TEST_CASE("malloc_allocator", "[malloc_allocator]")
 {
     SECTION("alloc-dealloc")
     {
-        lowlevel_allocator<malloc_allocator> lla;
+        lowlevel_allocator lla;
         void* ptr = lla.allocate_node(32, 8);
         REQUIRE(ptr != nullptr);
         lla.deallocate_node(ptr, 32, 8);
         ptr = nullptr;
         REQUIRE(lla.max_node_size() == 0xffffffffffffffff);
 
-        lowlevel_allocator<malloc_allocator> lla2 = std::move(lla);
+        lowlevel_allocator lla2 = std::move(lla);
         ptr = lla2.allocate_node(64, 8);
         REQUIRE(ptr != nullptr);
         lla2.deallocate_node(ptr, 64, 8);
@@ -107,14 +107,14 @@ TEST_CASE("new_allocator", "[new_allocator]")
 {
     SECTION("alloc-dealloc")
     {
-        lowlevel_allocator<new_allocator> lla;
+        lowlevel_allocator lla;
         void* ptr = lla.allocate_node(32, 8);
         REQUIRE(ptr != nullptr);
         lla.deallocate_node(ptr, 32, 8);
         ptr = nullptr;
         REQUIRE(lla.max_node_size() == 0xffffffffffffffff);
 
-        lowlevel_allocator<new_allocator> lla2 = std::move(lla);
+        lowlevel_allocator lla2 = std::move(lla);
         ptr = lla2.allocate_node(64, 8);
         REQUIRE(ptr != nullptr);
         lla2.deallocate_node(ptr, 64, 8);
@@ -127,14 +127,14 @@ TEST_CASE("posix_allocator", "[posix_allocator]")
 {
     SECTION("alloc-dealloc")
     {
-        lowlevel_allocator<posix_allocator> lla;
+        lowlevel_allocator lla;
         void* ptr = lla.allocate_node(32, 8);
         REQUIRE(ptr != nullptr);
         lla.deallocate_node(ptr, 32, 8);
         ptr = nullptr;
         REQUIRE(lla.max_node_size() == 0xffffffffffffffff);
 
-        lowlevel_allocator<posix_allocator> lla2 = std::move(lla);
+        lowlevel_allocator lla2 = std::move(lla);
         ptr = lla2.allocate_node(64, 8);
         REQUIRE(ptr != nullptr);
         lla2.deallocate_node(ptr, 64, 8);
@@ -144,7 +144,7 @@ TEST_CASE("posix_allocator", "[posix_allocator]")
 
     SECTION("allocate non-multiple of 8")
     {
-        lowlevel_allocator<posix_allocator> lla;
+        lowlevel_allocator lla;
         void* ptr = lla.allocate_node(1, 8);
         REQUIRE(ptr != nullptr);
         lla.deallocate_node(ptr, 1, 8);
@@ -167,14 +167,14 @@ TEST_CASE("mmap_allocator", "[mmap_allocator]")
 {
     SECTION("alloc-dealloc")
     {
-        lowlevel_allocator<mmap_allocator> lla;
+        lowlevel_allocator lla;
         void* ptr = lla.allocate_node(32, 8);
         REQUIRE(ptr != nullptr);
         lla.deallocate_node(ptr, 32, 8);
         ptr = nullptr;
         REQUIRE(lla.max_node_size() == 0xffffffffffffffff);
 
-        lowlevel_allocator<mmap_allocator> lla2 = std::move(lla);
+        lowlevel_allocator lla2 = std::move(lla);
         ptr = lla2.allocate_node(64, 8);
         REQUIRE(ptr != nullptr);
         lla2.deallocate_node(ptr, 64, 8);

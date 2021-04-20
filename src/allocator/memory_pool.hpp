@@ -16,7 +16,7 @@
 class memory_pool
 {
 public:
-    using allocator_type = growing_block_allocator<lowlevel_allocator<malloc_allocator>>;
+    using allocator_type = growing_block_allocator<lowlevel_allocator>;
 
 private:
     memory_arena<allocator_type> arena_;
