@@ -66,7 +66,7 @@ TEST_CASE("memory_block_stack", "[memory_block_stack]")
         REQUIRE_FALSE(mbs2.empty());
         REQUIRE(mbs2.size() == 1);
 
-        swap(mbs1, mbs2);
+        std::swap(mbs1, mbs2);
 
         memory_block mb1_popped = mbs1.pop();
         REQUIRE(mb1_popped.memory == mb2.memory);

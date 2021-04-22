@@ -53,21 +53,29 @@ public:
     using inserted_mb = memory_block;
 
     void push(allocated_mb block) noexcept;
-    allocated_mb pop() noexcept;
+    constexpr allocated_mb pop() noexcept;
 
-    inline inserted_mb top() const noexcept;
+    constexpr inserted_mb top() const noexcept;
     constexpr bool owns(void const* ptr) const noexcept;
 
     /// O(n) size
     constexpr std::size_t size() const noexcept;
     constexpr bool empty() const noexcept;
-
-    friend void swap(memory_block_stack& a, memory_block_stack& b) noexcept;
+    constexpr void swap(memory_block_stack&, memory_block_stack&) noexcept;
 };
 
 /**********************************************************************/
 
-memory_block_stack::inserted_mb
+constexpr memory_block_stack::allocated_mb
+memory_block_stack::pop() noexcept
+{
+    DEBUG_ASSERT(head_ != nullptr);
+    node* to_pop = head_;
+    head_ = head_->prev;
+    return {to_pop, to_pop->usable_size + Offset};
+}
+
+constexpr memory_block_stack::inserted_mb
 memory_block_stack::top() const noexcept
 {
     DEBUG_ASSERT(!empty());
@@ -79,6 +87,12 @@ constexpr bool
 memory_block_stack::empty() const noexcept
 {
     return head_ == nullptr;
+}
+
+constexpr void
+memory_block_stack::swap(memory_block_stack& a, memory_block_stack& b) noexcept
+{
+    std::swap(a.head_, b.head_);
 }
 
 constexpr std::size_t

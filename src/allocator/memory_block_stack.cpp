@@ -41,19 +41,3 @@ memory_block_stack::push(allocated_mb block) noexcept
     n->usable_size = block.size - Offset;
     head_ = n;
 }
-
-memory_block_stack::allocated_mb
-memory_block_stack::pop() noexcept
-{
-    DEBUG_ASSERT(head_ != nullptr);
-    node* to_pop = head_;
-    head_ = head_->prev;
-    return {to_pop, to_pop->usable_size + Offset};
-}
-
-// friend
-void
-swap(memory_block_stack& a, memory_block_stack& b) noexcept
-{
-    std::swap(a.head_, b.head_);
-}
