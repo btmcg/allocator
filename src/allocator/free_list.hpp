@@ -11,17 +11,14 @@
 
 
 namespace detail {
-
-    // sets stored integer value
-    inline void
+    constexpr void
     set_int(void* address, std::uintptr_t i) noexcept
     {
         DEBUG_ASSERT(address != nullptr);
         std::memcpy(address, &i, sizeof(std::uintptr_t));
     }
 
-    // reads stored integer value
-    inline std::uintptr_t
+    constexpr std::uintptr_t
     get_int(void* address) noexcept
     {
         DEBUG_ASSERT(address != nullptr);
@@ -31,20 +28,20 @@ namespace detail {
     }
 
     // pointer to integer
-    inline std::uintptr_t
+    constexpr std::uintptr_t
     to_int(std::uint8_t* ptr) noexcept
     {
         return reinterpret_cast<std::uintptr_t>(ptr);
     }
 
     // integer to pointer
-    inline std::uint8_t*
+    constexpr std::uint8_t*
     from_int(std::uintptr_t i) noexcept
     {
         return reinterpret_cast<std::uint8_t*>(i);
     }
 
-    inline std::uint8_t*
+    constexpr std::uint8_t*
     list_get_next(void* address) noexcept
     {
         DEBUG_ASSERT(address != nullptr);
@@ -52,7 +49,7 @@ namespace detail {
     }
 
     // stores a pointer value
-    inline void
+    constexpr void
     list_set_next(void* address, std::uint8_t* ptr) noexcept
     {
         set_int(address, to_int(ptr));
@@ -82,7 +79,7 @@ namespace detail {
     // begin and end are the proxy nodes
     // assumes list is not empty
     // similar to list_search_array()
-    inline interval
+    constexpr interval
     list_search_array(std::uint8_t* first, std::size_t bytes_needed, std::size_t node_size) noexcept
     {
         interval i;
@@ -116,7 +113,6 @@ namespace detail {
         // not enough continuous space
         return {nullptr, nullptr, nullptr, nullptr};
     }
-
 } // namespace detail
 
 
@@ -124,19 +120,17 @@ class free_list
 {
 public:
     constexpr free_list(std::size_t node_size) noexcept;
-    /// calls constructor plus insert
-    constexpr free_list(std::size_t node_size, void* mem, std::size_t size) noexcept;
-    constexpr free_list(free_list const&) noexcept = delete;
-    constexpr free_list& operator=(free_list const&) noexcept = delete;
-    constexpr free_list(free_list&&) noexcept;
     constexpr ~free_list() noexcept = default;
-    inline free_list& operator=(free_list&&) noexcept;
+    free_list(free_list const&) noexcept = delete;
+    free_list& operator=(free_list const&) noexcept = delete;
+    constexpr free_list(free_list&&) noexcept;
+    constexpr free_list& operator=(free_list&&) noexcept;
 
-    inline void insert(void* mem, std::size_t size) noexcept;
-    inline void* allocate() noexcept;
-    inline void* allocate(std::size_t n) noexcept;
-    inline void deallocate(void* ptr) noexcept;
-    inline void deallocate(void* ptr, std::size_t n) noexcept;
+    constexpr void insert(void* mem, std::size_t size) noexcept;
+    constexpr void* allocate() noexcept;
+    constexpr void* allocate(std::size_t n) noexcept;
+    constexpr void deallocate(void* ptr) noexcept;
+    constexpr void deallocate(void* ptr, std::size_t n) noexcept;
 
     constexpr std::size_t node_size() const noexcept;
     constexpr std::size_t capacity_left() const noexcept;
@@ -144,10 +138,18 @@ public:
     constexpr std::size_t max_used() const noexcept;
     constexpr bool empty() const noexcept;
 
-    friend inline void swap(free_list&, free_list&) noexcept;
+    friend constexpr void
+    swap(free_list& a, free_list& b) noexcept
+    {
+        std::swap(a.first_, b.first_);
+        std::swap(a.node_size_, b.node_size_);
+        std::swap(a.capacity_left_, b.capacity_left_);
+        std::swap(a.used_, b.used_);
+        std::swap(a.max_used_, b.max_used_);
+    }
 
 private:
-    inline void insert_impl(void* mem, std::size_t size) noexcept;
+    constexpr void insert_impl(void* mem, std::size_t size) noexcept;
 
 private:
     std::uint8_t* first_ = nullptr;
@@ -167,13 +169,6 @@ constexpr free_list::free_list(std::size_t node_size) noexcept
     // empty
 }
 
-constexpr free_list::free_list(std::size_t node_size, void* mem, std::size_t size) noexcept
-        : free_list(node_size)
-{
-    DEBUG_ASSERT(detail::is_aligned(mem, 8));
-    insert(mem, size);
-}
-
 constexpr free_list::free_list(free_list&& other) noexcept
         : first_(other.first_)
         , node_size_(other.node_size_)
@@ -187,7 +182,7 @@ constexpr free_list::free_list(free_list&& other) noexcept
     other.max_used_ = 0;
 }
 
-free_list&
+constexpr free_list&
 free_list::operator=(free_list&& other) noexcept
 {
     free_list tmp(std::move(other));
@@ -195,7 +190,7 @@ free_list::operator=(free_list&& other) noexcept
     return *this;
 }
 
-void
+constexpr void
 free_list::insert(void* mem, std::size_t size) noexcept
 {
     DEBUG_ASSERT(mem != nullptr);
@@ -203,7 +198,7 @@ free_list::insert(void* mem, std::size_t size) noexcept
     insert_impl(mem, size);
 }
 
-void*
+constexpr void*
 free_list::allocate() noexcept
 {
     DEBUG_ASSERT(!empty());
@@ -218,7 +213,7 @@ free_list::allocate() noexcept
     return mem;
 }
 
-void*
+constexpr void*
 free_list::allocate(std::size_t n) noexcept
 {
     DEBUG_ASSERT(!empty());
@@ -240,7 +235,7 @@ free_list::allocate(std::size_t n) noexcept
     return i.first;
 }
 
-void
+constexpr void
 free_list::deallocate(void* ptr) noexcept
 {
     ++capacity_left_;
@@ -251,7 +246,7 @@ free_list::deallocate(void* ptr) noexcept
     first_ = node;
 }
 
-void
+constexpr void
 free_list::deallocate(void* ptr, std::size_t n) noexcept
 {
     if (n <= node_size_)
@@ -290,18 +285,7 @@ free_list::empty() const noexcept
     return first_ == nullptr;
 }
 
-// friend
-void
-swap(free_list& a, free_list& b) noexcept
-{
-    std::swap(a.first_, b.first_);
-    std::swap(a.node_size_, b.node_size_);
-    std::swap(a.capacity_left_, b.capacity_left_);
-    std::swap(a.used_, b.used_);
-    std::swap(a.max_used_, b.max_used_);
-}
-
-void
+constexpr void
 free_list::insert_impl(void* mem, std::size_t size) noexcept
 {
     DEBUG_ASSERT(detail::is_aligned(mem, 8));

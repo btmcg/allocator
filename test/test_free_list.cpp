@@ -149,61 +149,6 @@ TEST_CASE("free_list", "[free_list]")
         std::free(mem2);
     }
 
-    SECTION("alloc-dealloc node")
-    {
-        constexpr std::size_t num_objs = 5;
-        void* mem = std::malloc((sizeof(object) + 4) * num_objs);
-
-        free_list fl(sizeof(object), mem, (sizeof(object) + 4) * num_objs);
-        REQUIRE(fl.capacity_left() == num_objs);
-
-        // allocate 5 objects and set values
-        object* objs[num_objs] = {};
-        for (std::size_t i = 0; i < num_objs; ++i) {
-            objs[i] = static_cast<object*>(fl.allocate());
-            REQUIRE(objs[i] != nullptr);
-            objs[i]->a = objs[i]->b = objs[i]->c = i;
-            REQUIRE(fl.capacity_left() == num_objs - i - 1);
-        }
-        REQUIRE(fl.capacity_left() == 0);
-
-        // verify object values
-        for (int i = 0; i < (int)num_objs; ++i) {
-            REQUIRE(objs[i]->a == i);
-            REQUIRE(objs[i]->b == i);
-            REQUIRE(objs[i]->c == i);
-        }
-
-        // deallocate 2 objs (out of order)
-        fl.deallocate(objs[3]);
-        REQUIRE(fl.capacity_left() == 1);
-        fl.deallocate(objs[1]);
-        REQUIRE(fl.capacity_left() == 2);
-
-        objs[3] = static_cast<object*>(fl.allocate());
-        objs[3]->a = objs[3]->b = objs[3]->c = 300;
-        REQUIRE(fl.capacity_left() == 1);
-
-        objs[1] = static_cast<object*>(fl.allocate());
-        objs[1]->a = objs[1]->b = objs[1]->c = 100;
-        REQUIRE(fl.capacity_left() == 0);
-
-        // verify object values
-        for (int i = 0; i < (int)num_objs; ++i) {
-            REQUIRE(objs[i]->a == ((i == 1 || i == 3) ? i * 100 : i));
-            REQUIRE(objs[i]->b == ((i == 1 || i == 3) ? i * 100 : i));
-            REQUIRE(objs[i]->c == ((i == 1 || i == 3) ? i * 100 : i));
-        }
-
-        // deallocate everything
-        for (std::size_t i = 0; i < num_objs; ++i) {
-            REQUIRE(fl.capacity_left() == i);
-            fl.deallocate(objs[i]);
-        }
-
-        std::free(mem);
-    }
-
     SECTION("alloc-dealloc array")
     {
         constexpr std::size_t mem_size = sizeof(big_object) * 50;
