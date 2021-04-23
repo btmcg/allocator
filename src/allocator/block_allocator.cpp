@@ -1,5 +1,6 @@
 #include "block_allocator.hpp"
 
+
 memory_block
 block_allocator::allocate_block() noexcept
 {
